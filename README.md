@@ -1,6 +1,6 @@
-# Housing NHS Research
+# Neighborhood Housing Services LA Research
 
-Methods and code for an ongoing research program on **how measurement choices manufacture findings** in housing policy and valuation.
+Methods and code for an ongoing research on **how measurement choices manufacture findings** in housing policy and valuation.
 
 The through-line across the work: an administratively neutral rule indexed to a number that has drifted from what it claims to measure will reproduce the drift as a finding, with no biased intent anywhere in the process.
 
@@ -12,9 +12,9 @@ The through-line across the work: an administratively neutral rule indexed to a 
 
 Two diagnostics for disparity estimates that depend on a benchmark nobody can observe.
 
-**Benchmark Sensitivity Ratio (BSR)** — reports how much a measured disparity depends on which benchmark the analyst chose. On synthetic data where the true disparity is *exactly zero by construction*, four benchmarks each used in published work yield estimates from −1.7% to +13.6% that disagree in sign, for a BSR of **7.97**.
+**Benchmark Sensitivity Ratio (BSR)**  ┈➤ reports how much a measured disparity depends on which benchmark the analyst chose. On synthetic data where the true disparity is *exactly zero by construction*, four benchmarks each used in published work yield estimates from −1.7% to +13.6% that disagree in sign, for a BSR of **7.97**.
 
-**Conformal coverage auditing** — locates model failure without asserting any ground truth, by checking whether calibrated prediction intervals actually contain the prices at which homes *did* sell, subgroup by subgroup. On the same data, marginal coverage of 87.5% conceals 93.2% versus 81.7% across groups.
+**Conformal coverage auditing**  ┈➤ locates model failure without asserting any ground truth, by checking whether calibrated prediction intervals actually contain the prices at which homes *did* sell, subgroup by subgroup. On the same data, marginal coverage of 87.5% conceals 93.2% versus 81.7% across groups.
 
 See the [module README](benchmark-sensitivity/README.md) for the full argument, usage, and background.
 
@@ -39,4 +39,5 @@ The repository name refers to the subject area of the research — housing, and 
 
 ## License
 
-MIT — see [LICENSE](LICENSE). Code is free to use; please cite if it informs published work.
+MIT [LICENSE](LICENSE). 
+Code is free to use; please cite if it informs published work.
