@@ -30,14 +30,3 @@ pytest
 ## Background
 
 The BSR construction follows the **Leakage Inflation Ratio** introduced in *Hybrid Quantitative ML Model for Financial Time Series Forecasting: A Two-Phase Empirical Diagnosis of Data Leakage and Metric Misuse* (Chan, Husain & Si), which applies the same idea to train/test split regimes: compute one metric under two or more regimes, and let the ratio expose that the metric was measuring the regime rather than the thing.
-
-## Status and scope
-
-Early-stage and exploratory. The synthetic demonstration is verified and reproducible under seed `20260905`. **Nothing here has yet been run against real parcel data**, and no empirical claim about any real housing market is made or implied by this repository.
-
-The repository name refers to the subject area of the research — housing, and neighborhood housing services broadly. It does not indicate sponsorship, affiliation, or a data relationship with any organization.
-
-## License
-
-MIT [LICENSE](LICENSE). 
-Code is free to use; please cite if it informs published work.
