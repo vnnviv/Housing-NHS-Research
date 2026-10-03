@@ -1,4 +1,4 @@
-# Status — 2026-09-08
+# Status — 2026-10-02
 
 A snapshot of where this work currently stands. Overwritten as things change;
 `FINDINGS.md` is the dated log of how it got here.
@@ -48,8 +48,11 @@ over-coverage makes estimates for that group less precise.
 
 ### Known limitations
 
-- **Nothing here has been run against real parcel records or recorded sales.**
-  All results are from the synthetic negative control.
+- **The BSR and coverage modules have not been run against real parcel records
+  or recorded sales.** All BSR and coverage results are from the synthetic
+  negative control. A separate down-payment scenario analysis in the repository
+  root uses real Assessor base-year assessed values for Compton; it does not use
+  these modules and makes no disparity claim.
 - Two of the four measurement choices in the current demonstration are not
   independent: one is the reciprocal of another, and a third is the same
   comparison in log form. The headline claim above is restricted to the two
@@ -103,10 +106,15 @@ belongs in this repository.
 | Synthetic generator (`examples/synthetic_demo.py`) | In use; all current results |
 | HUD Section 8 income limit methodology, FY23 / FY25 / FY26 | Converted to markdown in `sources/` |
 | CFPB AVM quality control small entity compliance guide | Converted to markdown in `sources/` |
-| County Assessor parcel records and recorded sales | Not yet obtained |
+| Compton assessed values, 2025-26 transfers (`compton_sales_2025_2026.csv`) | Obtained (LA County Assessor roll, pulled 2026-09-18). **Base-year assessed values, not recorded sale prices.** Used only by the scenario workbook, not by the BSR modules |
+| Down-payment scenario workbook | Built from the Compton extract, HUD/HCD income limits, a Freddie Mac PMMS rate and mortgage insurance rate cards; see its Assumptions sheet |
+| County Assessor parcel records for the study regions, and recorded sales | Not yet obtained |
 | ACS 5-year tract demographics | Not yet obtained |
 
-Conversion from source PDFs is reproducible via `convert.py`.
+Conversion from source PDFs is reproducible via `convert.py`. It requires
+PyMuPDF (`pip install pymupdf`). The source PDFs are not stored in this
+repository: download them from HUD and CFPB and pass their paths to
+`python convert.py`.
 
 ## Reproducing
 
