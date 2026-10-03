@@ -18,20 +18,20 @@ Each of those choices is individually defensible. Papers make all of them. The q
 
 `examples/synthetic_demo.py` builds a synthetic county in which two tract groups are drawn from an **identical** valuation process. Group B differs only in observable characteristics, in transaction noise (thinner markets produce noisier sales), and in how far assessed values lag. **The true disparity is exactly zero by construction.**
 
-A deliberately misspecified AVM — it cannot see property quality, as no real AVM can — is then evaluated under four benchmarks:
+A deliberately misspecified AVM — it cannot see property quality, as no real AVM can — is then evaluated under four benchmark computations:
 
-| Benchmark | Measured disparity |
-| --- | --- |
-| Sale price as truth | **+0.0286** |
-| Assessed value as truth | **+0.1357** |
-| Own model as truth | **−0.0170** |
-| Log-space vs sale price | **+0.0226** |
+| Benchmark | Measured disparity | Independent reference standard? |
+| --- | --- | --- |
+| Sale price as truth | **+0.0286** | Yes |
+| Assessed value as truth | **+0.1357** | Yes |
+| Own model as truth | **−0.0170** | No — the reciprocal of the sale-price comparison (`sale / pred − 1` vs `pred / sale − 1`) |
+| Log-space vs sale price | **+0.0226** | No — the same comparison in log form (r = 0.994 with the sale-price estimate) |
 
-One dataset. No real disparity. Estimates spanning −1.7% to +13.6%, **and the sign flips.**
+The two independent reference standards disagree by a factor of about 4.7 on this seed (**+2.9% vs +13.6%**), on data containing no disparity. Across 50 simulated draws the factor ranges from 3.05 to 4.95 (see `FINDINGS.md`).
 
-**BSR = 7.97.**
+The demo script prints BSR = 7.97 and a sign flip because it computes over all four rows. That is the original four-estimate output and should not be quoted as the headline. The negative sign comes from the reciprocal row, so the flip follows from including a quantity and its reciprocal in the same set, not from anything about measurement. The two-benchmark figure is the defensible one.
 
-Any one of those four numbers, reported alone, is a publishable-looking finding about nothing.
+Reported alone, the assessed-value estimate reads as a 13.6% disparity in a county that has none.
 
 ## The diagnostic
 
@@ -45,6 +45,8 @@ Report BSR alongside any disparity estimate, together with whether the **sign fl
 
 - **BSR near 1** — the finding is about the world.
 - **BSR large, or sign flips** — the finding is about the benchmark.
+
+Define `B` with care. Include only reference standards that are not transformations of one another. Reciprocal comparisons and log-form versions of the same comparison belong in separate functional-form and direction sensitivities, not in `B` (see `FINDINGS.md`, 2026-09-08).
 
 BSR does not tell you the disparity is fake. It tells you how much of what you are reporting is a property of your own analytical choice, which is a question every fairness estimate should have to answer before it is believed.
 
@@ -64,7 +66,7 @@ On the same synthetic data where every benchmark-based estimate was artifact:
 | Group A | 93.2% |
 | Group B | **81.7%** |
 
-Subgroup spread: **11.5 points.**
+Subgroup spread: **11.5 points** (seed `20260905`). Across 50 draws, median coverage is 94.5% for Group A and 85.7% for Group B, and the spread never falls below 4.8 points.
 
 The marginal guarantee looks nearly fine and conceals the gap. Split conformal guarantees *marginal* coverage under exchangeability and promises nothing per subgroup — which is precisely what makes the audit informative. Undercoverage in a subgroup is evidence of genuine model failure there, stated **without ever asserting what any house is worth.**
 
@@ -75,10 +77,11 @@ import numpy as np
 from bsr import sensitivity_report, coverage_audit
 
 # 1. How much does the disparity depend on the benchmark?
+# B should contain only reference standards that are not transformations of
+# one another (see FINDINGS.md, 2026-09-08).
 benchmarks = {
     "sale price as truth":     pred / sale_price - 1,
     "assessed value as truth": pred / assessed - 1,
-    "own model as truth":      sale_price / pred - 1,
 }
 report = sensitivity_report(benchmarks, group, focal=1, reference=0)
 print(report)
@@ -97,8 +100,8 @@ print(audit.spread, audit.worst_gap)
 ## Install
 
 ```bash
-git clone https://github.com/<you>/benchmark-sensitivity.git
-cd benchmark-sensitivity
+git clone https://github.com/vnnviv/Housing-NHS-Research.git
+cd Housing-NHS-Research/benchmark-sensitivity
 pip install -e .
 python examples/synthetic_demo.py
 pytest
