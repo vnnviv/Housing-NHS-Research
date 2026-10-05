@@ -5,7 +5,7 @@ Newest entries first.
 
 ---
 
-## 2026-10-05 — Candidate benchmark inventory for real data
+## 2026-10-05: Candidate benchmark inventory for real data
 
 A first inventory of reference standards that could form the benchmark class for county data. No candidate has been run on real records yet. The status column says what has been done.
 
@@ -21,23 +21,23 @@ On real county data the benchmark class may contain fewer than two independent s
 
 ---
 
-## 2026-10-02 — Housekeeping: public claims aligned with the revised result
+## 2026-10-02: Housekeeping (public claims aligned with the revised result)
 
 No new results. Three corrections to how the repository describes itself.
 
-- **Headline claim.** The root README and the module README previously led with
+- Headline claim: the root README and the module README previously led with
   the four-benchmark result (BSR 7.97, sign flips). The 2026-09-08 entry below
   shows that two of those four benchmarks are not independent of the others, so
   the sign flip is arithmetic. Both READMEs now lead with the two-benchmark
   result (sale price vs assessed value, factor 3.05 to 4.95 across 50 draws) and
   describe the 7.97 figure as the original four-estimate output.
-- **What `compton_sales_2025_2026.csv` is.** Its columns are `assessed_total`,
+- What `compton_sales_2025_2026.csv` is: its columns are `assessed_total`,
   `sqft_main`, `bedrooms`, `year_built` and `base_year`. It holds Assessor
   base-year assessed values for 2025-26 transfers, not recorded sale prices, and
   the scenario workbook uses it as a proxy for sale price. It is not used by the
   BSR modules. Because the proxy is an assessed value, the benchmark problem this
   repository studies applies to it directly.
-- **Status statements.** "Nothing has been run against real parcel records" now
+- Status statements: "Nothing has been run against real parcel records" now
   applies to the BSR and coverage modules only, since the repository root
   contains a separate scenario analysis built on real Assessor values.
 
@@ -46,14 +46,14 @@ Regenerate it with the `--output-csv` command under "Reproducing these results."
 
 ---
 
-## 2026-09-08 — Multi-seed robustness, and a benchmark-independence limitation
+## 2026-09-08: Multi-seed robustness, and a benchmark-independence limitation
 
 ### Multi-seed results
 
 The single-seed demonstration (`seed=20260905`) establishes reproducibility but
 not stability. A multi-seed harness (`examples/multi_seed.py`) now runs the full
-pipeline — simulate, fit the misspecified AVM, compute the four disparity
-estimates, run the BSR and the coverage audit — across many draws.
+pipeline (simulate, fit the misspecified AVM, compute the four disparity
+estimates, run the BSR and the coverage audit) across many draws.
 
 Across 50 seeds:
 
@@ -76,7 +76,7 @@ and the subgroup spread never drops below 4.8 percentage points.
 
 Both directions are calibration failures and are now reported as such. Under-
 coverage means the model fails for that group. Over-coverage means intervals
-are wider than advertised, so estimates there are less precise — a different
+are wider than advertised, so estimates there are less precise, which is a different
 harm, not an absence of one.
 
 Raw per-seed output can be exported to CSV for independent checking (the
@@ -107,7 +107,7 @@ result about measurement.**
 
 `log-space vs sale price` is also not an independent reference standard. It
 correlates with `sale price as truth` at r = 0.994, with a mean absolute
-difference of 0.0065 — the same comparison in a different functional form.
+difference of 0.0065. It is the same comparison in a different functional form.
 
 Finally, the ratio is determined by only two of the four choices. In all 50
 seeds the maximum is `assessed value as truth` and the minimum is
@@ -123,7 +123,7 @@ seeds the maximum is `assessed value as truth` and the minimum is
 
 ### Revised claim
 
-Recorded sale price and county assessed value are two genuinely distinct
+Recorded sale price and county assessed value are two distinct
 reference standards, both used in published work, neither derivable from the
 other. Restricting the comparison to those two:
 
@@ -141,11 +141,11 @@ over benchmark choice x functional form x sample restriction x winsorization.
 The current demonstration collapses three of those axes into one list. They
 will be separated:
 
-- **Benchmark axis** — distinct reference standards: sale price, assessed
+- **Benchmark axis:** distinct reference standards: sale price, assessed
   value, and (planned) a repeat-sales estimate. The BSR is defined over this
   axis only.
-- **Functional form axis** — level vs log. Reported as its own sensitivity.
-- **Direction axis** — which quantity is the numerator. Reported separately,
+- **Functional form axis:** level vs log. Reported as its own sensitivity.
+- **Direction axis:** which quantity is the numerator. Reported separately,
   with the reciprocal relationship disclosed.
 
 ### Terminology
@@ -159,8 +159,8 @@ negative control rather than as a simulation states the design more precisely.
 
 ## Related work across fields
 
-The problem — estimating error against a reference standard that cannot be
-observed — has been treated independently in several literatures. Notes on what
+The problem of estimating error against a reference standard that cannot be
+observed has been treated independently in several literatures. Notes on what
 does and does not transfer.
 
 **Diagnostic testing without a gold standard (biostatistics).** Hui-Walter
@@ -175,7 +175,7 @@ against a true 0.88, coverage of 90% credible intervals collapsing toward zero,
 and posterior predictive checks detecting the misfit in only about 7% of
 simulations at N=225 and 23% at N=1000. A method built to operate without a
 gold standard can be badly wrong in a way its own goodness-of-fit procedures do
-not reveal — an independent instance of the concern this package measures.
+not reveal. That is an independent instance of the concern this package measures.
 
 - https://pmc.ncbi.nlm.nih.gov/articles/PMC8440412/
 - https://pubmed.ncbi.nlm.nih.gov/22017371/
@@ -233,4 +233,3 @@ Every result reported in this log is from synthetic data generated by
 `examples/synthetic_demo.py`. The repository root also contains a separate
 down-payment scenario analysis that uses real Assessor assessed values for
 Compton; it is not part of the results above. The API is not stable.
-
