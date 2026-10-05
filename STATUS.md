@@ -1,28 +1,27 @@
-# Status — 2026-10-02
+# Status: 2026-10-02
 
 A snapshot of where this work currently stands. Overwritten as things change;
 `FINDINGS.md` is the dated log of how it got here.
 
-## Update — 2026-10-05
+## Update: 2026-10-05
 
-Additions since the snapshot below. Nothing below has been changed.
+Added since the snapshot below. The rest of this file is unchanged.
 
-- **New limitation.** On county data the benchmark class may contain fewer than
-  two independent standards: for recent transfers the assessed value is close
-  to the sale price, and appraisals are reported to anchor to contract price.
-  If so, the BSR is undefined there and the coverage audit carries the
-  analysis. The candidate inventory is in `FINDINGS.md` (2026-10-05).
-- **New next step.** Settle the real-data benchmark class first. Decide which
-  candidates in the `FINDINGS.md` inventory are independent enough to include,
-  and fix that list before any real-data run, so the benchmark set is not
-  chosen after seeing results.
+- On county data the benchmark class may contain fewer than two independent
+  standards. For recent transfers the assessed value is close to the sale
+  price, and appraisals are reported to anchor to contract price. If that holds,
+  the BSR is undefined there and the coverage audit has to carry the analysis.
+  The candidate inventory is in `FINDINGS.md` (2026-10-05).
+- Next, settle the real-data benchmark class before anything is run: decide
+  which candidates in the inventory are independent enough to include, and write
+  that list down first so the set is not chosen after seeing results.
 
 ## Research question
 
 Estimates of disparity in automated property valuation are measured against a
 reference standard that cannot be observed. There is no true value of a home.
-Every candidate reference — recorded sale price, county assessed value, a
-model's own residuals — is individually defensible and separately contestable,
+Every candidate reference (recorded sale price, county assessed value, a
+model's own residuals) is individually defensible and separately contestable,
 and published work uses all of them.
 
 The question is not whether valuation models produce disparities. That is
@@ -34,11 +33,11 @@ measured and reported as a matter of routine.
 
 Two diagnostics are implemented, tested, and reproducible:
 
-**Benchmark Sensitivity Ratio (BSR)** — the ratio of the largest to the
+**Benchmark Sensitivity Ratio (BSR):** the ratio of the largest to the
 smallest absolute disparity estimate across a class of defensible reference
 standards, reported alongside whether the sign changes across that class.
 
-**Conformal coverage auditing** — a benchmark-free check on where a model
+**Conformal coverage auditing:** a benchmark-free check on where a model
 fails, asking whether calibrated prediction intervals contain realized sale
 prices at the advertised rate within each subgroup. Answerable from completed
 transactions alone, without asserting any home's value.
@@ -57,7 +56,7 @@ as no real model can.
 Coverage results on the same draws are stable: one group over-covered (median
 94.5%), the other under-covered (median 85.7%), with a subgroup spread never
 below 4.8 percentage points. Both directions are treated as calibration
-failures — under-coverage exposes a group to unflagged model error,
+failures: under-coverage exposes a group to unflagged model error,
 over-coverage makes estimates for that group less precise.
 
 ### Known limitations
@@ -70,7 +69,7 @@ over-coverage makes estimates for that group less precise.
 - Two of the four measurement choices in the current demonstration are not
   independent: one is the reciprocal of another, and a third is the same
   comparison in log form. The headline claim above is restricted to the two
-  genuinely distinct reference standards. See `FINDINGS.md` for the analysis
+  distinct reference standards. See `FINDINGS.md` for the analysis
   and the recomputed values.
 - The API is not stable.
 
@@ -88,14 +87,14 @@ over-coverage makes estimates for that group less precise.
 4. **Document the denominator rule** for the BSR when an estimate approaches
    zero, and report the raw spread as a companion statistic, since the ratio
    discards both sign and magnitude.
-5. **Move from the synthetic generator to public records** — county Assessor
-   parcel data, recorded sales, and ACS tract demographics — with the
+5. **Move from the synthetic generator to public records:** county Assessor
+   parcel data, recorded sales, and ACS tract demographics, with the
    identification strategy and disaggregation plan committed before outcomes
    are examined.
 
 ## Open questions
 
-Questions where outside expertise would genuinely change the work:
+Questions where outside expertise would change the work:
 
 - Under what assumptions is a disparity identifiable given several imperfect
   measures of a *continuous* latent value? The relevant literature appears to
