@@ -43,10 +43,6 @@ A separate affordability analysis for Compton, CA: a scenario workbook (`.xlsx`)
 
 ---
 
-## Background
-
-The BSR construction follows the **Leakage Inflation Ratio** introduced in *Hybrid Quantitative ML Model for Financial Time Series Forecasting: A Two-Phase Empirical Diagnosis of Data Leakage and Metric Misuse* (Chan, Husain & Si), which applies the same idea to train/test split regimes: compute one metric under two or more regimes, and let the ratio expose that the metric was measuring the regime rather than the thing.
-
 ## Status and scope
 
 Early-stage and exploratory. The `benchmark-sensitivity` module's synthetic demonstration is verified and reproducible under seed `20260905`, and the module has not yet been run on real parcel data. The scenario analysis above uses real Assessor values for one city and is not an input to the module.
