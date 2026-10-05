@@ -1,4 +1,4 @@
-# Status — 2026-10-02
+# Status — 2026-10-05
 
 A snapshot of where this work currently stands. Overwritten as things change;
 `FINDINGS.md` is the dated log of how it got here.
@@ -58,6 +58,11 @@ over-coverage makes estimates for that group less precise.
   comparison in log form. The headline claim above is restricted to the two
   genuinely distinct reference standards. See `FINDINGS.md` for the analysis
   and the recomputed values.
+- On county data the benchmark class may contain fewer than two independent
+  standards: for recent transfers the assessed value is close to the sale
+  price, and appraisals are reported to anchor to contract price. If so, the
+  BSR is undefined there and the coverage audit carries the analysis. The
+  candidate inventory is in `FINDINGS.md` (2026-10-05).
 - The API is not stable.
 
 ## Next steps
@@ -68,6 +73,10 @@ over-coverage makes estimates for that group less precise.
 2. **Add a third independent reference standard.** A repeat-sales estimate on
    the same parcel differences out fixed unobserved quality and is not
    derivable from either current benchmark.
+   **Settle the real-data benchmark class first.** Decide which candidates in
+   the `FINDINGS.md` inventory are independent enough to include, and fix that
+   list before any real-data run, so the benchmark set is not chosen after
+   seeing results.
 3. **Report mean interval width by group** alongside coverage. Coverage alone
    can be satisfied by widening intervals; width is what makes the rate
    interpretable.
@@ -125,3 +134,4 @@ python examples/synthetic_demo.py                       # single seed
 python examples/multi_seed.py --n-seeds 50              # distribution
 pytest
 ```
+
