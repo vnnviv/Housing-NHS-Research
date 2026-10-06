@@ -51,4 +51,4 @@ Affiliation with Neighborhood Housing of LA County.
 
 MIT. See [LICENSE](LICENSE). Code is free to use; please cite if it informs published work.
 ## Contact
-Please reach out if you're interested on collaborating! We're expecting to open this to official collaboration on OpenLabs next semester, in hopes of publication.
+Please reach out if you're interested on collaborating! We're expecting to open this to official collaboration on OpenLabs, in hopes of publication.
