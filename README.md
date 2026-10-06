@@ -47,8 +47,7 @@ Early-stage and exploratory. The `benchmark-sensitivity` module's synthetic demo
 No empirical claim about algorithmic bias in any real housing market is made or implied by this repository.
 
 Affiliation with Neighborhood Housing of LA County. 
-## License
-
-MIT. See [LICENSE](LICENSE). Code is free to use; please cite if it informs published work.
 ## Contact
 Please reach out if you're interested on collaborating! We're expecting to open this to official collaboration on OpenLabs, in hopes of publication.
+## License
+MIT. See [LICENSE](LICENSE). Code is free to use; please cite if it informs published work.
