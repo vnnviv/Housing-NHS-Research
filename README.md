@@ -2,7 +2,7 @@
 
 Code and notes on how measurement choices manufacture findings in housing policy and valuation. When a rule is indexed to a number that has drifted from what it claims to measure, the rule reproduces the drift as a finding, with no biased intent anywhere.
 
-Independent research. The Compton scenario analysis was built in response to questions from Neighborhood Housing Services of LA County (NHS). This repository is not an NHS publication and does not represent NHS.
+The Compton scenario analysis was built working with Neighborhood Housing Services of LA County (NHS). 
 
 ---
 
