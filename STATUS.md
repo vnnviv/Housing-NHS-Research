@@ -1,142 +1,65 @@
-# Status: 2026-10-02
+# Status: 2026-10-15
 
-A snapshot of where this work currently stands. Overwritten as things change;
-`FINDINGS.md` is the dated log of how it got here.
-
-## Update: 2026-10-14
-
-Since the 2026-10-05 update. Everything else here is unchanged except one new row in the Data table.
-
-- Added an assistance-sizing model for the Compton scenario analysis (`analysis/assistance_sizing.py`, 31 tests in `tests/`). It estimates how much assistance a household needs to buy a home in the sample, split into a cash part and an income part. Results are in `NHS-ASSISTANCE-SIZING.md` and summarized in `FINDINGS.md` (2026-10-14).
-- At the median price, 91% to 94% of the assistance needed is an income gap that down-payment programs don't cover. Savings are a placeholder and program amounts are dated lookups, so treat the figures as illustrative.
-- None of this feeds the BSR or coverage modules, which still haven't been run on real parcel data.
-
-## Update: 2026-10-05
-
-Added since the snapshot below. The rest of this file is unchanged.
-
-- On county data the benchmark class may contain fewer than two independent
-  standards. For recent transfers the assessed value is close to the sale
-  price, and appraisals are reported to anchor to contract price. If that holds,
-  the BSR is undefined there and the coverage audit has to carry the analysis.
-  The candidate inventory is in `FINDINGS.md` (2026-10-05).
-- Next, settle the real-data benchmark class before anything is run: decide
-  which candidates in the inventory are independent enough to include, and write
-  that list down first so the set is not chosen after seeing results.
+Where the work stands now. `FINDINGS.md` is the dated log.
 
 ## Research question
 
-Estimates of disparity in automated property valuation are measured against a
-reference standard that cannot be observed. There is no true value of a home.
-Every candidate reference (recorded sale price, county assessed value, a
-model's own residuals) is individually defensible and separately contestable,
-and published work uses all of them.
+Disparity estimates for automated valuation models are measured against a reference standard nobody can observe. Every candidate (recorded sale price, assessed value, a model's own residuals) is defensible and contestable, and published work uses all of them.
 
-The question is not whether valuation models produce disparities. That is
-established. It is **how much of a reported disparity is a property of the
-reference standard the analyst selected**, and whether that dependence can be
-measured and reported as a matter of routine.
+The question is how much of a reported disparity comes from the benchmark the analyst picked, and whether that dependence can be measured and reported routinely.
 
 ## Where things stand
 
-Two diagnostics are implemented, tested, and reproducible:
+Two diagnostics are implemented, tested and reproducible:
 
-**Benchmark Sensitivity Ratio (BSR):** the ratio of the largest to the
-smallest absolute disparity estimate across a class of defensible reference
-standards, reported alongside whether the sign changes across that class.
+- **Benchmark Sensitivity Ratio (BSR):** the largest over the smallest absolute disparity estimate across a class of defensible benchmarks, plus whether the sign changes.
+- **Conformal coverage auditing:** a benchmark-free check of whether calibrated prediction intervals contain realized sale prices at the advertised rate within each subgroup.
 
-**Conformal coverage auditing:** a benchmark-free check on where a model
-fails, asking whether calibrated prediction intervals contain realized sale
-prices at the advertised rate within each subgroup. Answerable from completed
-transactions alone, without asserting any home's value.
+Both are demonstrated on a synthetic negative control: true disparity is zero by construction and the valuation model is deliberately misspecified.
 
-Both are demonstrated on a **negative control**: a synthetic data-generating
-process in which the true disparity is zero by construction, evaluated with a
-deliberately misspecified valuation model that cannot observe property quality,
-as no real model can.
+> Across 50 negative-control draws, two independently defensible reference standards produced disparity estimates differing by a factor of 3.05 to 4.95 on data containing no disparity by construction.
 
-### Current claim
+On the same draws, one group is over-covered (median 94.5%) and the other under-covered (median 85.7%), and the gap never falls below 4.8 points.
 
-> Across 50 negative-control draws, two independently defensible reference
-> standards produced disparity estimates differing by a factor of 3.05 to 4.95
-> on data containing no disparity by construction.
+Separately, a Compton scenario analysis (real Assessor values, placeholder inputs) finds that at the median price 91% to 94% of the assistance a household needs is an income gap, not a cash gap. See `FINDINGS.md` (2026-10-14). It does not feed the BSR or coverage modules.
 
-Coverage results on the same draws are stable: one group over-covered (median
-94.5%), the other under-covered (median 85.7%), with a subgroup spread never
-below 4.8 percentage points. Both directions are treated as calibration
-failures: under-coverage exposes a group to unflagged model error,
-over-coverage makes estimates for that group less precise.
+## Limitations
 
-### Known limitations
-
-- **The BSR and coverage modules have not been run against real parcel records
-  or recorded sales.** All BSR and coverage results are from the synthetic
-  negative control. A separate down-payment scenario analysis in the repository
-  root uses real Assessor base-year assessed values for Compton; it does not use
-  these modules and makes no disparity claim.
-- Two of the four measurement choices in the current demonstration are not
-  independent: one is the reciprocal of another, and a third is the same
-  comparison in log form. The headline claim above is restricted to the two
-  distinct reference standards. See `FINDINGS.md` for the analysis
-  and the recomputed values.
+- The BSR and coverage modules have never been run on real parcel records or recorded sales.
+- On county data the benchmark class may hold fewer than two independent standards. Recent assessed values sit close to sale prices, and appraisals are reported to anchor to contract price. If so, the BSR is undefined there and coverage carries the analysis.
+- Two of the four original benchmarks weren't independent, so the headline uses two. See `FINDINGS.md` (2026-09-08).
+- The scenario analysis uses placeholder savings and closing costs, dated program amounts, and Assessor values as a price proxy.
 - The API is not stable.
 
 ## Next steps
 
-1. **Separate the collapsed axes.** Define the BSR over a benchmark axis
-   (distinct reference standards) only, and report functional form and
-   direction of comparison as their own sensitivities.
-2. **Add a third independent reference standard.** A repeat-sales estimate on
-   the same parcel differences out fixed unobserved quality and is not
-   derivable from either current benchmark.
-3. **Report mean interval width by group** alongside coverage. Coverage alone
-   can be satisfied by widening intervals; width is what makes the rate
-   interpretable.
-4. **Document the denominator rule** for the BSR when an estimate approaches
-   zero, and report the raw spread as a companion statistic, since the ratio
-   discards both sign and magnitude.
-5. **Move from the synthetic generator to public records:** county Assessor
-   parcel data, recorded sales, and ACS tract demographics, with the
-   identification strategy and disaggregation plan committed before outcomes
-   are examined.
+1. Decide, in writing and before any run, which real-data benchmarks are independent enough to share a class (candidates are in `FINDINGS.md`, 2026-10-05).
+2. Separate the collapsed axes: define the BSR over distinct reference standards only, and report functional form and direction as their own sensitivities.
+3. Add a third independent standard, such as a repeat-sales estimate.
+4. Report mean interval width by group next to coverage. Coverage alone can be met by widening intervals.
+5. Document the denominator rule for estimates near zero, and report the raw spread beside the ratio.
+6. Move to public records (Assessor parcels, recorded sales, ACS tract demographics), with the identification strategy and disaggregation plan committed before outcomes are examined.
 
 ## Open questions
 
-Questions where outside expertise would change the work:
-
-- Under what assumptions is a disparity identifiable given several imperfect
-  measures of a *continuous* latent value? The relevant literature appears to
-  be measurement-error and errors-in-variables econometrics rather than the
-  latent class models used for binary diagnostic tests, but the identification
-  conditions have not been worked through here.
-- What makes two reference standards independent enough to belong in the same
-  benchmark class? The reciprocal pair found in the current demonstration shows
-  the question is not trivial, and the answer determines what the BSR measures.
-- Does unequal subgroup coverage constitute harm on its own, or only in
-  combination with how the estimate is used? The synthetic design attributes
-  the gap to the model rather than to group heterogeneity, but the normative
-  step is not argued here.
+- When is a disparity identifiable from several imperfect measures of a continuous latent value? This looks like errors-in-variables econometrics, not binary latent-class models, but the conditions haven't been worked out.
+- What makes two reference standards independent enough to share a class?
+- Is unequal subgroup coverage harmful on its own, or only through how the estimate is used?
 
 ## Data
 
-**Public sources only.** No confidential or client-level data is used, and none
-belongs in this repository.
+Public sources only. No confidential or client-level data belongs in this repository.
 
 | Source | State |
 | --- | --- |
-| Synthetic generator (`examples/synthetic_demo.py`) | In use; all current results |
-| HUD Section 8 income limit methodology, FY23 / FY25 / FY26 | Converted to markdown in `sources/` |
-| CFPB AVM quality control small entity compliance guide | Converted to markdown in `sources/` |
-| Compton assessed values, 2025-26 transfers (`compton_sales_2025_2026.csv`) | Obtained (LA County Assessor roll, pulled 2026-09-18). **Base-year assessed values, not recorded sale prices.** Used only by the scenario analysis, not by the BSR modules |
-| Down-payment scenario workbook | Built from the Compton extract, HUD/HCD income limits, a Freddie Mac PMMS rate and mortgage insurance rate cards; see its Assumptions sheet |
-| Assistance-sizing model (`analysis/assistance_sizing.py`) | Built on the Compton extract and the scenario inputs above, with the PMMS rate of 7.40% (2026-10-08). Savings, closing costs and program amounts are placeholders or dated lookups |
-| County Assessor parcel records for the study regions, and recorded sales | Not yet obtained |
+| Synthetic generator (`examples/synthetic_demo.py`) | In use; all BSR and coverage results |
+| HUD income limit methodology (FY23, FY25, FY26) and CFPB AVM guide | Converted to markdown in `sources/` |
+| Compton assessed values, 2025-26 transfers (`analysis/data/compton_sales_2025_2026.csv`) | Pulled 2026-09-18 from the LA County Assessor roll. Base-year assessed values, not sale prices. Scenario analysis only |
+| Scenario workbook and assistance-sizing model | Built on the Compton data, HUD/HCD income limits, a Freddie Mac PMMS rate (7.40%, 2026-10-08) and mortgage insurance rate cards |
+| Assessor parcels and recorded sales for the study regions | Not yet obtained |
 | ACS 5-year tract demographics | Not yet obtained |
 
-Conversion from source PDFs is reproducible via `convert.py`. It requires
-PyMuPDF (`pip install pymupdf`). The source PDFs are not stored in this
-repository: download them from HUD and CFPB and pass their paths to
-`python convert.py`.
+To convert source PDFs, run `python convert.py <pdf paths>` (needs `pip install pymupdf`). The PDFs themselves aren't stored here.
 
 ## Reproducing
 
@@ -147,3 +70,5 @@ python examples/synthetic_demo.py                       # single seed
 python examples/multi_seed.py --n-seeds 50              # distribution
 pytest
 ```
+
+Scenario analysis, from the repo root: `python analysis/assistance_sizing.py` and `python -m pytest tests`.

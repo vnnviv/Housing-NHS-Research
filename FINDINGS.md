@@ -1,238 +1,54 @@
 # Findings
 
-A running log of results and limitations for the benchmark-sensitivity work.
-Newest entries first.
+Dated log of results and corrections, newest first. BSR and coverage results are all from synthetic data.
 
 ---
 
-## 2026-10-14: Assistance sizing for the Compton scenarios
+## 2026-10-14: Assistance sizing (Compton scenarios)
 
-No change to the BSR or coverage results, and no disparity claim. This extends the scenario analysis at the repo root to ask how much assistance a household needs to buy a home in the Compton sample.
-
-`analysis/assistance_sizing.py` builds on `downpayment_scenarios.py`. The first mortgage can't be larger than the biggest loan whose full monthly payment (principal, interest, tax, insurance, mortgage insurance) fits the housing-ratio budget. Assistance needed is what is left after that loan and the buyer's savings:
-
-max(0, price + closing costs - first loan - savings)
-
-It splits into a cash part (down payment and closing costs savings don't cover) and an income part (principal reduction so the payment fits the budget). Median home $633,926, 3% down, 7.40% rate (Freddie Mac PMMS, 2026-10-08), 30% housing ratio, $10,000 savings (placeholder):
-
-| Income tier | Assistance needed | Income part | Income share | Best program covers |
-| --- | --- | --- | --- | --- |
-| Lower income ($133,250) | $264,236 | $239,370 | 91% | 13% |
-| Area median income ($108,100) | $355,046 | $330,180 | 93% | 10% |
-| Very low income ($83,300) | $444,593 | $419,727 | 94% | 8% |
-
-- Most of the gap is income, not cash. Down-payment programs only cover the cash part. The best one usable in Compton (GSFA Platinum, 5.5% of price, looked up 2026-09-18) covers 8% to 13% of the total.
-- A $35,000 program opens at most about 1 in 20 of the 746 sales (5.2% for lower income, 2.5% for area median, 0.9% for very low).
-- Across three bundles of assumptions (savings, housing ratio, rate, credit band), the lower income tier at the median price needs $181,647 to $274,236. These are scenarios, not confidence intervals.
-- Credit band doesn't change the amount here, because every case ends with a first loan at or below 80% of price, where mortgage insurance is zero. Credit's effect on the interest rate isn't modeled, so this doesn't show credit is unimportant.
-- Each extra $1 of price adds about $1.16 of assistance. Parcels reassessed in 2025-26 should sit near the purchase price (see 2026-10-02 for the proxy caveat), and the +5% and +10% rows in the report are stress tests, not estimates.
-- As the rate went from 6.71% (2026-09-03) to 6.95% (2026-09-17) to 7.40% (2026-10-08), the lower income need went from $237,238 to $246,972 to $264,236.
-
-Limits: savings, the 2.5% closing-cost rate and the program amounts are placeholders or dated lookups. One city, one household size (four). No combined loan-to-value check, and assistance is counted as dollars whatever its form. More in `NHS-ASSISTANCE-SIZING.md`.
-
-Reproduce from the repo root with `python analysis/assistance_sizing.py` and `python -m pytest tests`.
+- New `analysis/assistance_sizing.py`. Assistance needed = max(0, price + closing costs - first loan - savings), with the first loan capped by the housing-ratio budget.
+- Median home $633,926, 3% down, 7.40%, $10,000 savings (placeholder): lower income $264,236, area median $355,046, very low $444,593. 91% to 94% of that is an income gap. The best usable program (GSFA Platinum, 5.5% of price) covers 8% to 13%.
+- A $35,000 program opens at most about 1 in 20 of the 746 sales. Lower income range at the median across three assumption bundles: $181,647 to $274,236 (scenarios, not confidence intervals).
+- Credit band doesn't change the amount here, since the first loan always ends at or below 80% of price. Credit's effect on the interest rate isn't modeled.
+- Each extra $1 of price adds about $1.16 of assistance. Price is an Assessor-value proxy, so the benchmark problem applies.
+- Limits: placeholder savings, closing costs and program amounts; one city; one household size. Details in `NHS-ASSISTANCE-SIZING.md`. No change to BSR or coverage results, and no disparity claim.
 
 ---
 
-## 2026-10-05: Candidate benchmark inventory for real data
+## 2026-10-05: Benchmark inventory for real data
 
-A first inventory of reference standards that could form the benchmark class for county data. No candidate has been run on real records yet. The status column says what has been done.
-
-| Candidate | What it measures | Independent of sale price? | Main weakness | Status |
-| --- | --- | --- | --- | --- |
-| Recorded sale price | The realized transaction | It is the anchor | Only sold homes are observed; embeds negotiation and any discrimination in the sale | Used in the synthetic demonstration |
-| County assessed value | The Assessor's estimate | Only for long-held parcels | California Prop 13 resets assessed value to market at transfer, so for recent sales it is close to the sale price | Used in the synthetic demonstration |
-| Appraised value | An appraiser's estimate | Weakly: appraisals are reported to land at or above contract price in over 90% of GSE purchases (Fannie Mae, *Contract Price Confirmation Bias: Evidence from Repeat Appraisals*; figure not yet checked against the original) | Not in public parcel records | Not available |
-| Repeat-sales index | Price change on the same parcel across two sales | Largely: differences out fixed unobserved quality | Needs two sales per parcel; thin in some tracts; sold homes only | Planned |
-| Condition-controlled model | A model of value from characteristics, including condition | A different error source, but still a model | Misspecification returns the "own model as truth" problem | Not started |
-
-On real county data the benchmark class may contain fewer than two independent standards. If so, the BSR is undefined there and the coverage audit carries the analysis. Whether a second independent standard exists is the next question to settle before any real-data run.
+- Candidates: recorded sale price, assessed value, appraised value, repeat-sales index, condition-controlled model. None run on real records yet.
+- For recent sales the assessed value is close to the sale price (Prop 13 resets at transfer), and appraisals are reported to land at or above contract price in over 90% of GSE purchases (Fannie Mae; figure not checked against the original). The real-data class may hold fewer than two independent standards. If so, the BSR is undefined there and the coverage audit carries the analysis.
+- Next: decide which candidates are independent enough, before any real-data run.
 
 ---
 
-## 2026-10-02: Housekeeping (public claims aligned with the revised result)
+## 2026-10-02: Housekeeping
 
-No new results. Three corrections to how the repo describes itself.
-
-- Headline: the root and module READMEs led with the four-benchmark result (BSR 7.97, sign flips). The 2026-09-08 entry below shows two of those four benchmarks aren't independent, so the sign flip is arithmetic. Both READMEs now lead with the two-benchmark result (sale price vs assessed value, factor 3.05 to 4.95 across 50 draws) and call 7.97 the original four-estimate output.
-- `compton_sales_2025_2026.csv` (columns `assessed_total`, `sqft_main`, `bedrooms`, `year_built`, `base_year`) holds Assessor base-year assessed values for 2025-26 transfers, not recorded sale prices. The scenario workbook uses it as a price proxy and the BSR modules don't. Because it is an assessed value, the benchmark problem this repo studies applies to it directly.
-- "Nothing has been run against real parcel records" now applies to the BSR and coverage modules only. The repo root has a separate scenario analysis built on real Assessor values.
-
-The per-seed CSV mentioned below isn't tracked (`*.csv` is gitignored). Regenerate it with the `--output-csv` command under "Reproducing these results."
+- READMEs now lead with the two-benchmark result (sale price vs assessed value, factor 3.05 to 4.95 across 50 draws). 7.97 is described as the original four-estimate output.
+- `compton_sales_2025_2026.csv` holds Assessor assessed values, not recorded sale prices. The scenario analysis uses it as a price proxy and the BSR modules don't.
+- "Not run on real parcel records" applies to the BSR and coverage modules only.
 
 ---
 
-## 2026-09-08: Multi-seed robustness, and a benchmark-independence limitation
+## 2026-09-08: Multi-seed robustness, and a limitation
 
-### Multi-seed results
-
-The single-seed demonstration (`seed=20260905`) establishes reproducibility but
-not stability. A multi-seed harness (`examples/multi_seed.py`) now runs the full
-pipeline (simulate, fit the misspecified AVM, compute the four disparity
-estimates, run the BSR and the coverage audit) across many draws.
-
-Across 50 seeds:
-
-| Quantity | Value |
-| --- | --- |
-| BSR median | 5.57 |
-| BSR IQR | [5.22, 6.39] |
-| BSR range | [4.00, 9.38] |
-| Sign flips | 50 / 50 seeds |
-| Median min \|estimate\| (BSR denominator) | 0.026 |
-| Benchmarks within 1e-12 of zero | 0 across all seeds |
-
-The original seed's BSR of 7.97 sits high in the distribution but inside the
-observed range. The denominator stays well away from zero, so the ratio is not
-inflated by a near-zero benchmark.
-
-Conformal coverage is equally stable. Group 0 over-covers (median 94.5%) and
-Group 1 under-covers (median 85.7%); Group 1 falls below 88% in 48 of 50 seeds,
-and the subgroup spread never drops below 4.8 percentage points.
-
-Both directions are calibration failures and are now reported as such. Under-
-coverage means the model fails for that group. Over-coverage means intervals
-are wider than advertised, so estimates there are less precise, which is a different
-harm, not an absence of one.
-
-Raw per-seed output can be exported to CSV for independent checking (the
-file is not tracked in this repository; regenerate it with `--output-csv`).
-
-### Limitation found: two of the four benchmarks are not independent
-
-Re-examining the four measurement choices against the multi-seed output
-surfaced a construction problem that materially changes how the headline result
-should be stated.
-
-**`own model as truth` is approximately the algebraic negative of
-`sale price as truth`.**
-
-```
-sale price as truth:   pred / sale - 1
-own model as truth:    sale / pred - 1      <- reciprocal transformation
-```
-
-These are reciprocal expressions of the same comparison. If one is +x, the
-other is approximately -x before any data enters. The output confirms it: the
-ratio between the two disparity estimates has median -0.674 and is negative in
-50 of 50 seeds.
-
-**The 100% sign-flip rate is therefore a mathematical consequence of including
-a quantity and its reciprocal in the same comparison set, not an empirical
-result about measurement.**
-
-`log-space vs sale price` is also not an independent reference standard. It
-correlates with `sale price as truth` at r = 0.994, with a mean absolute
-difference of 0.0065. It is the same comparison in a different functional form.
-
-Finally, the ratio is determined by only two of the four choices. In all 50
-seeds the maximum is `assessed value as truth` and the minimum is
-`own model as truth`; the other two never bind.
-
-#### Recomputed under alternative benchmark sets
-
-| Benchmark set | BSR median | Range | Sign flip |
-| --- | --- | --- | --- |
-| All four (as originally reported) | 5.57 | 4.00 – 9.38 | 100% |
-| Excluding `own model as truth` | 4.54 | 3.51 – 6.25 | Never |
-| `sale price` vs `assessed value` only | 3.76 | 3.05 – 4.95 | Never |
-
-### Revised claim
-
-Recorded sale price and county assessed value are two distinct
-reference standards, both used in published work, neither derivable from the
-other. Restricting the comparison to those two:
-
-> Across 50 negative-control draws, two independently defensible reference
-> standards produced disparity estimates differing by a factor of 3.05 to 4.95
-> on data containing no disparity by construction.
-
-This is a weaker headline than the sign-flip framing and a considerably more
-defensible one.
-
-### Planned restructure
-
-The module README already describes the full version as a specification curve
-over benchmark choice x functional form x sample restriction x winsorization.
-The current demonstration collapses three of those axes into one list. They
-will be separated:
-
-- **Benchmark axis:** distinct reference standards: sale price, assessed
-  value, and (planned) a repeat-sales estimate. The BSR is defined over this
-  axis only.
-- **Functional form axis:** level vs log. Reported as its own sensitivity.
-- **Direction axis:** which quantity is the numerator. Reported separately,
-  with the reciprocal relationship disclosed.
-
-### Terminology
-
-The synthetic demonstration is a **negative control**: the data-generating
-process contains zero disparity by construction, and the question is whether
-established measurement choices manufacture one anyway. Framing it as a
-negative control rather than as a simulation states the design more precisely.
+- 50 seeds: BSR median 5.57 (IQR 5.22 to 6.39, range 4.00 to 9.38), sign flips in 50 of 50, median smallest |estimate| 0.026. The original seed's 7.97 sits inside the range.
+- Coverage: group 0 median 94.5%, group 1 median 85.7% (below 88% in 48 of 50 seeds). The gap never falls below 4.8 points. Under-coverage means the model fails for that group. Over-coverage means wider, less precise intervals. Both are calibration failures.
+- Limitation: `own model as truth` is the reciprocal of `sale price as truth` (`sale / pred - 1` vs `pred / sale - 1`), so the 100% sign flip is arithmetic. `log-space vs sale price` is the same comparison in log form (r = 0.994). Only two of the four choices ever set the ratio.
+- BSR median by benchmark set: all four 5.57 (sign flips 100%); without `own model as truth` 4.54 (3.51 to 6.25, never); sale price vs assessed value only 3.76 (3.05 to 4.95, never).
+- Revised claim: across 50 negative-control draws, two independently defensible reference standards gave disparity estimates differing by a factor of 3.05 to 4.95 on data with no disparity by construction.
+- Planned: report three axes separately. Benchmark (BSR defined here only: sale price, assessed value, planned repeat-sales), functional form (level vs log) and direction (which quantity is the numerator).
+- The demonstration is a negative control: zero disparity by construction, and the question is whether standard measurement choices produce one anyway.
+- The per-seed CSV isn't tracked. Regenerate it with `--output-csv`.
 
 ---
 
-## Related work across fields
+## Related work
 
-The problem of estimating error against a reference standard that cannot be
-observed has been treated independently in several literatures. Notes on what
-does and does not transfer.
+Notes on other fields that face the same problem (biostatistics, econometrics, accounting, metrology, psychometrics) are in [`docs/related-work.md`](docs/related-work.md).
 
-**Diagnostic testing without a gold standard (biostatistics).** Hui-Walter
-latent class models identify test accuracy from multiple imperfect tests across
-populations with differing prevalence. These models require *binary* outcomes
-and a dichotomous latent state, so they do not port directly to a continuous
-latent value.
-
-More relevant is their documented fragility. Where an unmodeled additional
-latent state exists, reported simulations find sensitivity estimated at 0.27
-against a true 0.88, coverage of 90% credible intervals collapsing toward zero,
-and posterior predictive checks detecting the misfit in only about 7% of
-simulations at N=225 and 23% at N=1000. A method built to operate without a
-gold standard can be badly wrong in a way its own goodness-of-fit procedures do
-not reveal. That is an independent instance of the concern this package measures.
-
-- https://pmc.ncbi.nlm.nih.gov/articles/PMC8440412/
-- https://pubmed.ncbi.nlm.nih.gov/22017371/
-- https://onlinelibrary.wiley.com/doi/abs/10.1002/sim.6218
-
-**Measurement error and errors-in-variables (econometrics).** The appropriate
-home for a continuous latent true value observed through several imperfect
-indicators, and the natural companion to the partial identification literature
-already cited in the module README. Open question: under what assumptions is a
-disparity identifiable given several imperfect benchmarks of a continuous
-latent quantity?
-
-- https://www.sciencedirect.com/science/article/abs/pii/S0304407617300830
-- https://arxiv.org/html/2512.02970
-
-**Fair value measurement (accounting).** Under ASC 820 and IFRS 13, assets
-without an observable market price are classified Level 3, and the holder must
-disclose the valuation technique, the unobservable inputs, and a sensitivity
-analysis over alternative assumptions. A disclosure obligation of that shape,
-applied to automated valuation models, is close to what reporting a benchmark
-sensitivity statistic would accomplish.
-
-- https://dart.deloitte.com/USDART/home/codification/broad-transactions/asc820-10/roadmap-fair-value-measurements-disclosures/chapter-8-fair-value-hierarchy/8-4-level-3-inputs
-
-**Metrology.** Where no primary standard exists, measurement science uses a
-consensus value together with an explicit uncertainty budget decomposing total
-uncertainty into named components. The BSR is naturally read as one line item
-in such a budget: uncertainty attributable to choice of reference standard.
-
-- https://nvlpubs.nist.gov/nistpubs/TechnicalNotes/NIST.TN.2156.pdf
-- https://www.eurachem.org/images/stories/Guides/pdf/ECTRC_2019_EN_P1.pdf
-
-**Psychometrics.** The criterion problem and construct validity address
-measuring an unobservable construct with no criterion available for validation,
-and long predate the machine learning treatment of the same difficulty.
-
-- https://en.wikipedia.org/wiki/Criterion_validity
-
----
-
-## Reproducing these results
+## Reproducing
 
 ```bash
 cd benchmark-sensitivity
@@ -243,9 +59,4 @@ python examples/multi_seed.py --n-seeds 50 --output-csv multi_seed_results.csv
 pytest
 ```
 
-## Status
-
-Every result reported in this log is from synthetic data generated by
-`examples/synthetic_demo.py`. The repository root also contains a separate
-down-payment scenario analysis that uses real Assessor assessed values for
-Compton; it is not part of the results above. The API is not stable.
+The scenario analysis runs from the repo root: `python analysis/assistance_sizing.py` and `python -m pytest tests`.
