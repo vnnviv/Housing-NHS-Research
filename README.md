@@ -29,7 +29,7 @@ pytest
 
 ### Down-payment scenario analysis (repository root)
 
-A separate affordability analysis for Compton, CA: a scenario workbook (`.xlsx`) and the data extract it uses, `compton_sales_2025_2026.csv`.
+A separate affordability analysis for Compton, CA: a scenario workbook (`NHS-Downpayment-Scenarios.xlsx`) and the data extract it uses, `analysis/data/compton_sales_2025_2026.csv`.
 
 - The extract has 760 rows and five columns: `assessed_total`, `sqft_main`, `bedrooms`, `year_built`, `base_year`. Per the workbook's Assumptions sheet, it comes from the LA County Assessor roll, pulled 2026-09-18.
 - **It contains Assessor base-year assessed values for 2025-26 transfers, not recorded sale prices**, despite the filename. The workbook uses them as a proxy for sale price after dropping 14 transfers under $200,000.
