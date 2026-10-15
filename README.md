@@ -33,6 +33,7 @@ A separate affordability analysis for Compton, CA: a scenario workbook (`.xlsx`)
 
 - The extract has 760 rows and five columns: `assessed_total`, `sqft_main`, `bedrooms`, `year_built`, `base_year`. Per the workbook's Assumptions sheet, it comes from the LA County Assessor roll, pulled 2026-09-18.
 - **It contains Assessor base-year assessed values for 2025-26 transfers, not recorded sale prices**, despite the filename. The workbook uses them as a proxy for sale price after dropping 14 transfers under $200,000.
+- `analysis/downpayment_scenarios.py` runs the scenario model in code, and `analysis/assistance_sizing.py` sizes how much assistance moves a household from mortgage-ready to a home in the sample, split into a cash part and an income part. Results are in [`NHS-ASSISTANCE-SIZING.md`](NHS-ASSISTANCE-SIZING.md) and tests are in `tests/`.
 - This is scenario modeling. It is not a disparity estimate and makes no claim about algorithmic bias.
 
 ### Project notes

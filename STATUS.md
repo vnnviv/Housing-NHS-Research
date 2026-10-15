@@ -3,6 +3,14 @@
 A snapshot of where this work currently stands. Overwritten as things change;
 `FINDINGS.md` is the dated log of how it got here.
 
+## Update: 2026-10-14
+
+Added since the 2026-10-05 update. The rest of this file is unchanged apart from one added row in the Data table.
+
+- The scenario analysis at the repository root now includes an assistance-sizing model (`analysis/assistance_sizing.py`, with 31 tests in `tests/`). It estimates how much assistance moves a household from mortgage-ready to a Compton home in the sales sample, split into a cash part and an income part. Results are in `NHS-ASSISTANCE-SIZING.md` and summarized in `FINDINGS.md` (2026-10-14).
+- At the median price, 91% to 94% of the assistance needed is an income gap that down-payment programs do not address. These figures use placeholder savings and dated program amounts, and are illustrative.
+- This is scenario modeling on the Compton extract. It is not an input to the BSR or coverage modules, and the modules have still not been run on real parcel data.
+
 ## Update: 2026-10-05
 
 Added since the snapshot below. The rest of this file is unchanged.
@@ -121,6 +129,7 @@ belongs in this repository.
 | CFPB AVM quality control small entity compliance guide | Converted to markdown in `sources/` |
 | Compton assessed values, 2025-26 transfers (`compton_sales_2025_2026.csv`) | Obtained (LA County Assessor roll, pulled 2026-09-18). **Base-year assessed values, not recorded sale prices.** Used only by the scenario workbook, not by the BSR modules |
 | Down-payment scenario workbook | Built from the Compton extract, HUD/HCD income limits, a Freddie Mac PMMS rate and mortgage insurance rate cards; see its Assumptions sheet |
+| Assistance-sizing model (`analysis/assistance_sizing.py`) | Built on the Compton extract and the scenario inputs above, with a Freddie Mac PMMS rate of 7.40% (2026-10-08). Savings, closing costs, and program amounts are placeholders or dated lookups |
 | County Assessor parcel records for the study regions, and recorded sales | Not yet obtained |
 | ACS 5-year tract demographics | Not yet obtained |
 

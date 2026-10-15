@@ -5,6 +5,37 @@ Newest entries first.
 
 ---
 
+## 2026-10-14: Assistance sizing for the Compton scenario analysis
+
+No change to the BSR or coverage results. This entry covers the separate scenario analysis at the repository root, which now has a model of how much assistance moves a household from mortgage-ready to a home that exists in the Compton sales sample. It makes no disparity claim.
+
+**Method.** `analysis/assistance_sizing.py`, built on `analysis/downpayment_scenarios.py`. For a home at price P with closing costs C and household savings S, the first mortgage cannot exceed the largest loan whose full payment (principal, interest, taxes, insurance, mortgage insurance) fits the housing-ratio budget. Whatever is left has to come from savings or assistance:
+
+assistance needed = max(0, P + C - min(starting loan, largest affordable loan) - S)
+
+It splits into a cash part (down payment and closing costs that savings do not cover) and an income part (principal reduction needed for the payment to fit the budget).
+
+**Results.** Median home ($633,926), 3% down, 7.40% rate (Freddie Mac PMMS, 2026-10-08), 30% housing ratio, $10,000 savings (placeholder):
+
+| Income tier | Assistance needed | Income part | Share that is income | Best available program covers |
+| --- | --- | --- | --- | --- |
+| Lower income ($133,250) | $264,236 | $239,370 | 91% | 13% |
+| Area median income ($108,100) | $355,046 | $330,180 | 93% | 10% |
+| Very low income ($83,300) | $444,593 | $419,727 | 94% | 8% |
+
+- At the median price, 91% to 94% of the assistance needed is an income gap. Programs that fund the down payment and closing costs address only the cash part. The best program a Compton buyer can use (GSFA Platinum, 5.5% of price, as looked up 2026-09-18) covers 8% to 13% of the total.
+- A $35,000 program opens at most about 1 in 20 of the 746 recent sales, and only for the lower income tier (5.2%; 2.5% for the area median tier, 0.9% for very low income).
+- Across three bundles of assumptions (savings, housing ratio, rate, credit band), the lower income tier at the median price needs $181,647 to $274,236. The bundles are plausible combinations, not confidence intervals.
+- Credit band does not change the assistance amount in this model, because every result brings the first mortgage to 80% of price or below, where mortgage insurance is zero. Only the mortgage-insurance channel is modeled. Credit also affects the interest rate, which is not modeled, so this does not show that credit is unimportant.
+- Each extra $1 of benchmark price adds about $1.16 of required assistance, so the price benchmark matters. The 2026-10-02 entry already notes that the proxy is an assessed value and not a recorded sale price. Parcels reassessed in 2025-26 should sit close to the purchase price, which is the only kind in this sample; the +5% and +10% rows in the report are stress tests, not estimates.
+- The rate moved from 6.71% (2026-09-03) to 6.95% (2026-09-17) to 7.40% (2026-10-08). At the median price the lower income tier's need went from $237,238 to $246,972 to $264,236.
+
+**Limitations.** Savings, the 2.5% closing-cost rate, and the program amounts are placeholders or dated lookups. One geography (Compton) and one household size (four people). No combined loan-to-value cap is checked, and assistance is counted as dollars whatever its structure. Full results and caveats are in `NHS-ASSISTANCE-SIZING.md`.
+
+Reproduce with `python analysis/assistance_sizing.py` and `python -m pytest tests` from the repository root.
+
+---
+
 ## 2026-10-05: Candidate benchmark inventory for real data
 
 A first inventory of reference standards that could form the benchmark class for county data. No candidate has been run on real records yet. The status column says what has been done.
