@@ -27,7 +27,6 @@ from pathlib import Path
 # ---------------------------------------------------------------------------
 # Assumptions. Every one of these is a dated, sourced choice — see the results
 # file. Change them here and re-run; nothing downstream hardcodes them.
-# ---------------------------------------------------------------------------
 
 RATE_ANNUAL = 0.0695          # Freddie Mac PMMS 30-yr FRM, released 2026-09-17
 TERM_MONTHS = 360
@@ -122,7 +121,6 @@ MIN_PLAUSIBLE_SALE = 200_000   # below this = partial-interest / non-arms-length
 
 # ---------------------------------------------------------------------------
 # Price benchmark
-# ---------------------------------------------------------------------------
 
 def fetch_assessor_rows(city="COMPTON"):
     """Pull recently-reassessed single-family parcels from the LA County Assessor.
@@ -199,7 +197,6 @@ def price_benchmark(rows):
 
 # ---------------------------------------------------------------------------
 # Financing math
-# ---------------------------------------------------------------------------
 
 def payment_factor(annual_rate=None, months=TERM_MONTHS):
     """Monthly P&I per $1 of loan principal.
@@ -282,7 +279,6 @@ def dpa_amount(program, price):
 
 # ---------------------------------------------------------------------------
 # Reporting
-# ---------------------------------------------------------------------------
 
 def money(x):
     return f"-${abs(x):,.0f}" if x < 0 else f"${x:,.0f}"
