@@ -29,26 +29,32 @@ pytest
 
 ### Down-payment scenario analysis (repository root)
 
-A separate affordability analysis for Compton, CA: a scenario workbook (`NHS-Downpayment-Scenarios.xlsx`) and the data extract it uses, `analysis/data/compton_sales_2025_2026.csv`.
+A separate affordability analysis for Compton, CA: an Excel scenario workbook (`NHS-Downpayment-Scenarios.xlsx`) and the data it uses, `analysis/data/compton_sales_2025_2026.csv`.
 
-- The extract has 760 rows and five columns: `assessed_total`, `sqft_main`, `bedrooms`, `year_built`, `base_year`. Per the workbook's Assumptions sheet, it comes from the LA County Assessor roll, pulled 2026-09-18.
-- **It contains Assessor base-year assessed values for 2025-26 transfers, not recorded sale prices**, despite the filename. The workbook uses them as a proxy for sale price after dropping 14 transfers under $200,000.
-- `analysis/downpayment_scenarios.py` runs the scenario model in code, and `analysis/assistance_sizing.py` sizes how much assistance moves a household from mortgage-ready to a home in the sample, split into a cash part and an income part. Results are in [`NHS-ASSISTANCE-SIZING.md`](NHS-ASSISTANCE-SIZING.md) and tests are in `tests/`.
+- The data has 760 rows and five columns (`assessed_total`, `sqft_main`, `bedrooms`, `year_built`, `base_year`) from the LA County Assessor roll, pulled 2026-09-18. **These are base-year assessed values for 2025-26 transfers, not recorded sale prices**, despite the filename. The analysis uses them as a price proxy after dropping 14 transfers under $200,000.
+- `analysis/downpayment_scenarios.py` runs the scenario model in code. `analysis/assistance_sizing.py` estimates how much assistance a household needs to buy a home in the sample, split into a cash part and an income part. Results are in [`NHS-ASSISTANCE-SIZING.md`](NHS-ASSISTANCE-SIZING.md) and tests are in `tests/`.
 - This is scenario modeling. It is not a disparity estimate and makes no claim about algorithmic bias.
 
 ### Project notes
+
 - [`STATUS.md`](STATUS.md): current state, limitations, next steps, and data sources.
 - [`FINDINGS.md`](FINDINGS.md): dated log of results and corrections.
 - [`sources/`](sources/): HUD income limit methodology (FY23, FY25, FY26) and the CFPB AVM quality control guide, converted to markdown.
+
 ---
+
 ## Status and scope
 
 Early-stage and exploratory. The `benchmark-sensitivity` module's synthetic demonstration is verified and reproducible under seed `20260905`, and the module has not yet been run on real parcel data. The scenario analysis above uses real Assessor values for one city and is not an input to the module.
 
 No empirical claim about algorithmic bias in any real housing market is made or implied by this repository.
 
-Affiliation with Neighborhood Housing of LA County. 
+Affiliation with Neighborhood Housing of LA County.
+
 ## Contact
-Please reach out if you're interested on collaborating! We're expecting to open this to official collaboration on OpenLabs, in hopes of publication.
+
+Please reach out if you're interested in collaborating. We expect to open this to official collaboration on OpenLabs, with publication as the goal.
+
 ## License
+
 MIT. See [LICENSE](LICENSE). Code is free to use; please cite if it informs published work.

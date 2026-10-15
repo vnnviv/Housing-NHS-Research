@@ -5,11 +5,11 @@ A snapshot of where this work currently stands. Overwritten as things change;
 
 ## Update: 2026-10-14
 
-Added since the 2026-10-05 update. The rest of this file is unchanged apart from one added row in the Data table.
+Since the 2026-10-05 update. Everything else here is unchanged except one new row in the Data table.
 
-- The scenario analysis at the repository root now includes an assistance-sizing model (`analysis/assistance_sizing.py`, with 31 tests in `tests/`). It estimates how much assistance moves a household from mortgage-ready to a Compton home in the sales sample, split into a cash part and an income part. Results are in `NHS-ASSISTANCE-SIZING.md` and summarized in `FINDINGS.md` (2026-10-14).
-- At the median price, 91% to 94% of the assistance needed is an income gap that down-payment programs do not address. These figures use placeholder savings and dated program amounts, and are illustrative.
-- This is scenario modeling on the Compton extract. It is not an input to the BSR or coverage modules, and the modules have still not been run on real parcel data.
+- Added an assistance-sizing model for the Compton scenario analysis (`analysis/assistance_sizing.py`, 31 tests in `tests/`). It estimates how much assistance a household needs to buy a home in the sample, split into a cash part and an income part. Results are in `NHS-ASSISTANCE-SIZING.md` and summarized in `FINDINGS.md` (2026-10-14).
+- At the median price, 91% to 94% of the assistance needed is an income gap that down-payment programs don't cover. Savings are a placeholder and program amounts are dated lookups, so treat the figures as illustrative.
+- None of this feeds the BSR or coverage modules, which still haven't been run on real parcel data.
 
 ## Update: 2026-10-05
 
@@ -127,9 +127,9 @@ belongs in this repository.
 | Synthetic generator (`examples/synthetic_demo.py`) | In use; all current results |
 | HUD Section 8 income limit methodology, FY23 / FY25 / FY26 | Converted to markdown in `sources/` |
 | CFPB AVM quality control small entity compliance guide | Converted to markdown in `sources/` |
-| Compton assessed values, 2025-26 transfers (`compton_sales_2025_2026.csv`) | Obtained (LA County Assessor roll, pulled 2026-09-18). **Base-year assessed values, not recorded sale prices.** Used only by the scenario workbook, not by the BSR modules |
+| Compton assessed values, 2025-26 transfers (`compton_sales_2025_2026.csv`) | Obtained (LA County Assessor roll, pulled 2026-09-18). **Base-year assessed values, not recorded sale prices.** Used only by the scenario analysis, not by the BSR modules |
 | Down-payment scenario workbook | Built from the Compton extract, HUD/HCD income limits, a Freddie Mac PMMS rate and mortgage insurance rate cards; see its Assumptions sheet |
-| Assistance-sizing model (`analysis/assistance_sizing.py`) | Built on the Compton extract and the scenario inputs above, with a Freddie Mac PMMS rate of 7.40% (2026-10-08). Savings, closing costs, and program amounts are placeholders or dated lookups |
+| Assistance-sizing model (`analysis/assistance_sizing.py`) | Built on the Compton extract and the scenario inputs above, with the PMMS rate of 7.40% (2026-10-08). Savings, closing costs and program amounts are placeholders or dated lookups |
 | County Assessor parcel records for the study regions, and recorded sales | Not yet obtained |
 | ACS 5-year tract demographics | Not yet obtained |
 
