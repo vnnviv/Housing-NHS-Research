@@ -51,10 +51,6 @@ No empirical claim about algorithmic bias in any real housing market is made or 
 
 Affiliation with Neighborhood Housing of LA County.
 
-## Contact
-
-Please reach out if you're interested in collaborating. We expect to open this to official collaboration on OpenLabs, with publication as the goal.
-
 ## License
 
 MIT. See [LICENSE](LICENSE). Code is free to use; please cite if it informs published work.
