@@ -121,10 +121,6 @@ The synthetic generator is a demonstration, not the research. To use this on rea
 
 ## Background
 
-The construction follows the **Leakage Inflation Ratio** introduced in *Hybrid Quantitative ML Model for Financial Time Series Forecasting: A Two-Phase Empirical Diagnosis of Data Leakage and Metric Misuse* (Chan, Husain & Si), which applies the same idea to train/test split regimes: compute one metric under two or more regimes, and let the ratio expose that the metric was measuring the regime rather than the thing.
-
-Related methods worth reading before using this seriously:
-
 - Simonsohn, Simmons & Nelson: specification curve analysis, the formal engine under BSR.
 - Manski, *Identification for Prediction and Decision*; Molinari, *Econometrics with Partial Identification*: reporting the range of estimates consistent with any benchmark in a class.
 - The conformal equalized-coverage literature (2024–), on subgroup coverage guarantees and their cost.
