@@ -35,6 +35,9 @@ from pathlib import Path
 import downpayment_scenarios as dps
 
 BASELINE_SAVINGS = 10_000          # PLACEHOLDER - replace with NHS client data
+MI_SCALE = 1.0                     # credit-band multiplier on conventional MI rates (700-719 = 1.0)
+# 97-LTV conventional MI rate by FICO band (Enact HFA card, as in downpayment_scenarios.py)
+FICO_BANDS = [("760+", 0.0058), ("700-719", 0.0099), ("680-699", 0.0121), ("640-659", 0.0165)]
 SAVINGS_GRID = [0, 10_000, 25_000]
 REACH_CAPS = [0, 20_000, 35_000, 50_000, 100_000, 150_000, 250_000, 350_000]
 PRICE_PERCENTILES = [("p10", "10th"), ("p25", "25th"), ("p50", "Median"),
@@ -60,12 +63,14 @@ def mi_rate_by_ltv(ltv, is_fha):
         return dps.FHA_ANNUAL_MIP
     ltv = round(ltv, 6)   # guard against 0.8000000000000002 style float noise
     if ltv > 0.95:
-        return dps.PMI_BY_LTV[0.97]
-    if ltv > 0.90:
-        return dps.PMI_BY_LTV[0.95]
-    if ltv > 0.80:
-        return dps.PMI_BY_LTV[0.90]
-    return 0.0
+        base = dps.PMI_BY_LTV[0.97]
+    elif ltv > 0.90:
+        base = dps.PMI_BY_LTV[0.95]
+    elif ltv > 0.80:
+        base = dps.PMI_BY_LTV[0.90]
+    else:
+        return 0.0
+    return base * MI_SCALE
 
 
 def monthly_payment(price, base_loan, is_fha):
@@ -149,6 +154,19 @@ def parcel_prices(rows):
     return sorted(r[0] for r in rows if r[0] >= dps.MIN_PLAUSIBLE_SALE)
 
 
+def with_settings(fn, rate=None, dti=None, mi_scale=None):
+    """Run fn with temporary rate / DTI / MI-scale overrides, then restore."""
+    global MI_SCALE
+    saved = (dps.RATE_ANNUAL, dps.HOUSING_DTI, MI_SCALE)
+    if rate is not None: dps.RATE_ANNUAL = rate
+    if dti is not None: dps.HOUSING_DTI = dti
+    if mi_scale is not None: MI_SCALE = mi_scale
+    try:
+        return fn()
+    finally:
+        dps.RATE_ANNUAL, dps.HOUSING_DTI, MI_SCALE = saved
+
+
 def with_rate(rate, fn):
     original = dps.RATE_ANNUAL
     dps.RATE_ANNUAL = rate
@@ -209,8 +227,45 @@ def build_report(bench, prices, rate, rate_date, savings, external):
                 f"{money(f['total'])} |")
     add("")
 
-    # --- 2. versus programs --------------------------------------------
-    add("## 2. What the listed programs cover")
+    # --- 2. range -------------------------------------------------------
+    add("## 2. A range, not a single figure")
+    add("")
+    add("Three bundles of assumptions, 3% down. These are plausible combinations, "
+        "**not confidence intervals**: no probability is attached to any of them. "
+        "Price is held at the Assessor benchmark in all three; price sensitivity is "
+        "in section 7.")
+    add("")
+    add("| Bundle | Savings | Housing ratio | Rate | Credit (MI scale) |")
+    add("|---|---|---|---|---|")
+    bundles = {
+        "Favorable": dict(sav=25_000, dti=0.33, rate=0.0695, scale=0.0058 / 0.0099,
+                          note="6.95% (the Sept 17 level), 760+"),
+        "Base": dict(sav=savings, dti=0.30, rate=rate, scale=1.0, note=f"{rate * 100:.2f}%, 700-719"),
+        "Adverse": dict(sav=0, dti=0.30, rate=rate, scale=0.0165 / 0.0099,
+                        note=f"{rate * 100:.2f}%, 640-659"),
+    }
+    for name, b in bundles.items():
+        add(f"| {name} | {money(b['sav'])} | {b['dti'] * 100:.0f}% | {b['note'].split(',')[0]} | "
+            f"{b['note'].split(', ')[1]} ({b['scale']:.2f}x) |")
+    add("")
+    add("| Income tier | Home | Favorable | Base | Adverse |")
+    add("|---|---|---|---|---|")
+    for tier, income in tiers.items():
+        for key, label in PRICE_PERCENTILES[1:3]:
+            cells = []
+            for name, b in bundles.items():
+                v = with_settings(lambda b=b: assistance_needed(p[key], income, *CONV_3, b["sav"])["total"],
+                                  rate=b["rate"], dti=b["dti"], mi_scale=b["scale"])
+                cells.append(money(v))
+            add(f"| {tier} | {label} ({money(p[key])}) | " + " | ".join(cells) + " |")
+    add("")
+    add("Even the favorable bundle leaves a large gap in every row. In this model the "
+        "spread comes from the housing ratio, rate and savings; credit adds nothing "
+        "to it (see section 6 for why, and what that leaves out).")
+    add("")
+
+    # --- 3. versus programs --------------------------------------------
+    add("## 3. What the listed programs cover")
     add("")
     add("Best program a Compton buyer can use today (GSFA Platinum, 5.5% of "
         "price; CalHFA MyHome is smaller; Dream For All is closed and LACDA "
@@ -235,7 +290,7 @@ def build_report(bench, prices, rate, rate_date, savings, external):
     add("")
 
     # --- 3. reach ------------------------------------------------------
-    add("## 3. What a given assistance level opens up")
+    add("## 4. What a given assistance level opens up")
     add("")
     add(f"Share of the {n} recent Compton sales a household at each income tier "
         f"could buy, 3% down, with {money(savings)} in savings, at each level of "
@@ -251,7 +306,7 @@ def build_report(bench, prices, rate, rate_date, savings, external):
     add("")
 
     # --- 4. savings sensitivity ----------------------------------------
-    add("## 4. How much the savings assumption matters")
+    add("## 5. How much the savings assumption matters")
     add("")
     add("Total assistance needed, 3% down, by household savings.")
     add("")
@@ -268,8 +323,41 @@ def build_report(bench, prices, rate, rate_date, savings, external):
         "not change how large the income part is.")
     add("")
 
-    # --- 5. benchmark sensitivity --------------------------------------
-    add("## 5. How much the price benchmark matters")
+    # --- 6. credit ------------------------------------------------------
+    add("## 6. Credit")
+    add("")
+    add("Total assistance needed, 3% down, by credit band. The assistance model "
+        "can leave the first mortgage at any LTV, but the rate card in the repo "
+        "prices only the 97-LTV case by band, so each band's rate is applied as a "
+        "multiplier on the 700-719 rates at every LTV. That is an approximation.")
+    add("")
+    add("| Income tier | Home | " + " | ".join(b for b, _ in FICO_BANDS) + " |")
+    add("|---|---|" + "---|" * len(FICO_BANDS))
+    for tier, income in tiers.items():
+        for key, label in PRICE_PERCENTILES[1:3]:
+            cells = []
+            for band, r97 in FICO_BANDS:
+                v = with_settings(lambda: assistance_needed(p[key], income, *CONV_3, savings)["total"],
+                                  mi_scale=r97 / dps.PMI_BY_LTV[0.97])
+                cells.append(money(v))
+            add(f"| {tier} | {label} | " + " | ".join(cells) + " |")
+    add("")
+    add("**Credit does not change the assistance amount in this model.** Every "
+        "cell is identical across bands because, in each case, the assistance needed "
+        "brings the first mortgage to 80% of price or below, where mortgage insurance "
+        "is zero. Credit only changes the monthly cost on the way there.")
+    add("")
+    add("**What this does not show.** Only the mortgage-insurance channel is "
+        "modeled. Lower credit scores also usually mean a higher interest rate, "
+        "which would raise the assistance needed, and that is not in the model. "
+        "So this table supports 'better credit alone does not close the gap' for "
+        "the insurance channel only. It does not size the effect of credit on the "
+        "rate. That needs a rate-by-credit-band source, ideally NHS's own lender "
+        "quotes.")
+    add("")
+
+    # --- 7. benchmark sensitivity --------------------------------------
+    add("## 7. How much the price benchmark matters")
     add("")
     add("The conclusion about the size of the gap depends on which price "
         "benchmark stands in for \"something that exists in the market\". Median "
@@ -315,7 +403,7 @@ def build_report(bench, prices, rate, rate_date, savings, external):
     add("")
 
     # --- 6. rate sensitivity -------------------------------------------
-    add("## 6. Interest rate")
+    add("## 8. Interest rate")
     add("")
     add("The rate moved sharply between the two earlier runs and today. Median "
         "home, 3% down, same savings.")
@@ -336,7 +424,7 @@ def build_report(bench, prices, rate, rate_date, savings, external):
     add("")
 
     # --- 6b. underwriting ratio ----------------------------------------
-    add("## 7. Underwriting ratio")
+    add("## 9. Underwriting ratio")
     add("")
     add("The 30% front-end ratio is the largest single lever in the earlier "
         "analysis. Total assistance needed, 3% down, by ratio.")
@@ -361,7 +449,7 @@ def build_report(bench, prices, rate, rate_date, savings, external):
     add("")
 
     # --- 8. structure / what it does not model -------------------------
-    add("## 8. What this does not model")
+    add("## 10. What this does not model")
     add("")
     add("- **Structure of the assistance.** Dollars are counted the same whether "
         "they are a grant, a forgivable second, or a repayable deferred second. "

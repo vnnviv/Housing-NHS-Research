@@ -103,3 +103,24 @@ def test_rate_helper_restores_global():
     before = dps.RATE_ANNUAL
     az.with_rate(0.09, lambda: None)
     assert dps.RATE_ANNUAL == before
+
+
+def test_mi_scale_changes_payment_but_restores():
+    saved = az.MI_SCALE
+    hi = az.with_settings(lambda: az.monthly_payment(PRICE, PRICE * 0.97, False), mi_scale=1.667)
+    base = az.monthly_payment(PRICE, PRICE * 0.97, False)
+    assert hi > base
+    assert az.MI_SCALE == saved
+
+
+def test_credit_band_does_not_change_total_when_loan_ends_at_or_below_80_ltv():
+    inc = dps.INCOME_TIERS["Lower income (= moderate)"]
+    totals = [az.with_settings(lambda: az.assistance_needed(PRICE, inc, 0.03, False, 10_000)["total"],
+                               mi_scale=r / dps.PMI_BY_LTV[0.97]) for _, r in az.FICO_BANDS]
+    assert max(totals) - min(totals) == pytest.approx(0.0, abs=1.0)
+
+
+def test_with_settings_restores_rate_and_dti():
+    r0, d0 = dps.RATE_ANNUAL, dps.HOUSING_DTI
+    az.with_settings(lambda: None, rate=0.09, dti=0.40, mi_scale=2.0)
+    assert (dps.RATE_ANNUAL, dps.HOUSING_DTI, az.MI_SCALE) == (r0, d0, 1.0)
