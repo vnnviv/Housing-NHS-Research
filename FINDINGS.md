@@ -4,6 +4,15 @@ Dated log of results and corrections, newest first. BSR and coverage results are
 
 ---
 
+## 2026-10-27: Sourced rate range, headline line, held-out pipeline
+
+- Rate range replaced with Freddie Mac PMMS history: 5.98% to 7.79% (weekly, 2023-01-05 to 2026-10-22; FRED MORTGAGE30US). Base 7.40% unchanged; latest reading 7.32%. Amendment 1 in `ANALYSIS-PLAN.md`.
+- Compton headline (exploratory, unchanged): 25th-percentile home $559,482 needs $194,725 with no principal reduction, 1.46x the $133,250 cap, unreachable in every grid cell. The rate swing in the tornado is now $26,248 (was $29,135 on the placeholder range); price proxy $28,309 is now the largest swing, but its range is still a placeholder, so the ranking is not a finding.
+- New: `pull_city.py` (run locally; the Assessor service blocks cloud IPs), `acs_renter_income.py` (needs a Census API key; gives bounds, never a point share), `make_figures.py`, `docs/novelty-search.md`. The held-out city is not yet pulled, so nothing is confirmed.
+- Literature check: the income / asset barrier split already exists (Perkins et al., Cityscape 2020; JCHS). Only the combination is arguably new. Direct SSRN, NBER, JHE and Lewis Center searches are still to do.
+
+---
+
 ## 2026-10-26: Income-cap sensitivity (Compton, exploratory)
 
 - New `analysis/cap_sensitivity.py` and `ANALYSIS-PLAN.md`. The engine is pure (no module globals) and is tested against closed-form amortization values and against `assistance_sizing.py`. Compton results are exploratory: the data was seen before the plan existed. A held-out city is the confirmatory step.
