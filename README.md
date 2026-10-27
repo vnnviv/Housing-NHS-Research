@@ -28,6 +28,7 @@ A separate affordability analysis for Compton, CA. It is scenario modeling, not 
 - **Data:** `analysis/data/compton_sales_2025_2026.csv`, 760 rows from the LA County Assessor roll, pulled 2026-09-18. These are base-year assessed values for 2025-26 transfers, **not recorded sale prices**. They serve as a price proxy after dropping 14 transfers under $200,000.
 - **Code:** `analysis/downpayment_scenarios.py` (scenario model, with `NHS-Downpayment-Scenarios.xlsx`) and `analysis/assistance_sizing.py` (how much assistance a household needs, split into a cash part and an income part). Tests are in `tests/`.
 - **Results:** [`NHS-ASSISTANCE-SIZING.md`](NHS-ASSISTANCE-SIZING.md).
+- **Cap sensitivity (exploratory):** `analysis/cap_sensitivity.py` inverts the sizing model to ask what income a recent Compton sale requires, compares it with named program caps, and reports flip points and a tornado. Governing plan: [`ANALYSIS-PLAN.md`](ANALYSIS-PLAN.md). Output: [`NHS-CAP-SENSITIVITY.md`](NHS-CAP-SENSITIVITY.md). Tests: `tests/test_cap_sensitivity.py`.
 
 ## Notes
 

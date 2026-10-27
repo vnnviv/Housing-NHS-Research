@@ -4,6 +4,16 @@ Dated log of results and corrections, newest first. BSR and coverage results are
 
 ---
 
+## 2026-10-26: Income-cap sensitivity (Compton, exploratory)
+
+- New `analysis/cap_sensitivity.py` and `ANALYSIS-PLAN.md`. The engine is pure (no module globals) and is tested against closed-form amortization values and against `assistance_sizing.py`. Compton results are exploratory: the data was seen before the plan existed. A held-out city is the confirmatory step.
+- Base assumptions (7.40%, 3% down, 30% front-end ratio, 4-person caps): the 25th-percentile home ($559,482) requires $194,725 of income with no principal reduction, 1.46x the HUD low / HCD moderate cap of $133,250. With $100,000 of principal reduction it requires $149,120, 1.12x. Cash needs are assumed met and reported separately.
+- The answer does not flip inside the placeholder ranges for the $133,250 cap. Rate would have to fall to 2.77% (others at base) to flip it. For the CalHFA flat $214,000 limit, required income stays below the cap across the 6% to 8% range and would cross it at 8.67%, above the tested range.
+- Rate and the price-proxy multiplier give similar swings ($29,135 and $28,309 of required income). Both ranges are placeholders, so the ranking is not a finding.
+- Limits: placeholder ranges, front-end ratio only (no debts), Assessor reset values as the price proxy, no count of households by income band. Direction-of-bias table in the output file.
+
+---
+
 ## 2026-10-14: Assistance sizing (Compton scenarios)
 
 - New `analysis/assistance_sizing.py`. Assistance needed = max(0, price + closing costs - first loan - savings), with the first loan capped by the housing-ratio budget.
