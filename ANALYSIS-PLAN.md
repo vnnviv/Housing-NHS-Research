@@ -1,6 +1,6 @@
 # Analysis plan: AMI-cap sensitivity (Compton, then one held-out city)
 
-Status: DRAFT until you date and commit it. Once committed, changes go in a dated
+Status: DRAFT until you date and commit it. Amendment 1 (2026-10-27) is below. Once committed, changes go in a dated
 "Amendments" section at the bottom, never as silent edits.
 
 **What this plan is for.** To fix, before the confirmatory run, what is measured,
@@ -60,11 +60,11 @@ flip point on each axis (section 6).
 | Caps (4-person, dollars) | HUD very low $83,300; MFI $108,100 (reference, not a cap); HUD low = HCD moderate $133,250; CalHFA standard flat $214,000; Greenline $151,300 (2024 materials, possibly stale) | HUD/HCD verified; CalHFA relationship to AMI unexplained; Greenline unverified |
 | Housing ratio (policy axis) | 0.28, 0.30, 0.33, 0.36 front-end | Policy choice, shown separately from uncertainty |
 
-## 5. Uncertainty axes (ranges are PLACEHOLDERS until sourced)
+## 5. Uncertainty axes (rate is sourced; the other ranges are PLACEHOLDERS until sourced)
 
 | Axis | Base | Range | Source to replace the placeholder |
 |---|---|---|---|
-| Mortgage rate | 7.40% (PMMS 2026-10-08, from repo) | 6.0% to 8.0% | Freddie Mac PMMS weekly history, 2023 to 2026 |
+| Mortgage rate | 7.40% (PMMS 2026-10-08, from repo) | 5.98% to 7.79% | **Sourced** (Amendment 1): Freddie Mac PMMS weekly min and max, 2023-01-05 to 2026-10-22, FRED MORTGAGE30US |
 | Price proxy multiplier | 1.00 | 0.95 to 1.10 | Scenario; Assessor-reset vs sale gap is unmeasured |
 | MI scale (credit) | 1.00 (700-719) | 0.59 to 1.67 | Rate card in repo (Enact HFA); credit effect on the *rate* is not modeled |
 | Property tax rate | 1.10% | 1.00% to 1.25% | County tax bill for the city's tax rate area |
@@ -127,6 +127,30 @@ form "X% of Compton households are excluded" is permitted.
 1. Commit this plan. 2. Replace placeholder ranges with sourced ones. 3. Pull the
 held-out city under section 3. 4. Run once. 5. Report both cities with the labels above.
 
+### Held-out city selection (fixed before any candidate is pulled)
+
+Eligible: an incorporated LA County city whose `TaxRateCity` returns at least 100 retained
+parcels under section 3, working-class and renter-heavy like Compton, and not a city used
+in any prior NHS analysis. Candidate list, fixed in alphabetical order so the choice does
+not depend on outcomes: Baldwin Park, Bell Gardens, Lynwood, Pomona, South Gate. Run them in
+that order and use the first that meets the minimum n. The candidates are named from
+general knowledge; their n and incomes are unverified. Baldwin Park and Pomona sit in the
+San Gabriel Valley, which overlaps Paper 2's geography; that is a separate project, so if
+you want the threads kept apart, drop them from the list *before* running anything.
+Run: `python analysis/pull_city.py "<CITY>" --out analysis/data/<city>_2025_2026.csv`, then
+`cap_sensitivity.py --csv ... --label ... --status confirmatory`.
+
 ## Amendments
 
-(none)
+**Amendment 1, 2026-10-27 (before any held-out city was pulled).**
+- Rate axis now 5.98% to 7.79% (PMMS weekly min and max, 2023-01-05 to 2026-10-22). Base stays
+  7.40% (repo value, PMMS 2026-10-08); the latest reading is 7.32% (2026-10-22). The range was
+  taken from observed history, not from any result. Compton results shifted only by the rate
+  swing in the tornado ($29,135 to $26,248); the headline row did not change.
+- Added a headline line to every report (25th percentile, R = 0, 30% ratio, HUD low cap, label)
+  so the confirmatory comparison is on one pre-named line.
+- Added the held-out city list and rule above, a `--csv/--label/--status` interface, and the
+  n < 100 stop.
+- Still PLACEHOLDER: tax rate, insurance, savings, closing costs, price multiplier. Tax: the 1%
+  general levy is verified; Compton's total rate is not. Look up 2 to 3 Compton tax rate areas
+  at the LA County Auditor-Controller before the confirmatory run.

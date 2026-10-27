@@ -178,3 +178,26 @@ def test_engine_does_not_mutate_existing_module_globals():
     cs.required_income(PRICE, replace(P, rate=0.09, housing_dti=0.40, mi_scale=2.0), 10_000)
     cs.grid_summary(PRICE, P, 0.0, 0.33, cs.CAPS)
     assert (dps.RATE_ANNUAL, dps.HOUSING_DTI, az.MI_SCALE) == before
+
+
+# --- headline, sourced rate range, minimum n --------------------------------
+
+def test_headline_matches_the_table_row():
+    h = cs.headline(559_482.0, P)
+    assert h["required"] == pytest.approx(cs.required_income(559_482.0, P, 0.0))
+    assert h["ratio"] == pytest.approx(h["required"] / 133_250)
+    assert h["label"] in {"reachable in every cell", "unreachable in every cell", "mixed"}
+
+
+def test_rate_range_is_the_sourced_pmms_range():
+    lo, hi, note = cs.UNCERTAINTY_AXES["rate"]
+    assert (lo, hi) == (0.0598, 0.0779)
+    assert "PMMS" in note and "PLACEHOLDER" not in note
+
+
+def test_report_header_follows_label_and_status():
+    bench = dps.price_benchmark(dps.load_rows())
+    prices = [r[0] for r in dps.load_rows() if r[0] >= dps.MIN_PLAUSIBLE_SALE]
+    r = cs.build_report(bench, prices, 0.074, "2026-10-08", "Testville", "confirmatory")
+    assert r.startswith("# Income-cap sensitivity: Testville (CONFIRMATORY)")
+    assert "Confirmatory run for Testville" in r
