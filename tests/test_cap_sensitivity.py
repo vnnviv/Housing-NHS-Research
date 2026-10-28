@@ -201,3 +201,10 @@ def test_report_header_follows_label_and_status():
     r = cs.build_report(bench, prices, 0.074, "2026-10-08", "Testville", "confirmatory")
     assert r.startswith("# Income-cap sensitivity: Testville (CONFIRMATORY)")
     assert "Confirmatory run for Testville" in r
+
+
+def test_headline_reports_two_front_end_ratios():
+    h = cs.headline(559_482.0, P)
+    assert [r["dti"] for r in h["rows"]] == [0.30, 0.43]
+    assert h["rows"][0]["required"] > h["rows"][1]["required"]
+    assert h["rows"][0]["ratio"] == pytest.approx(h["ratio"])

@@ -1,6 +1,6 @@
 # Analysis plan: AMI-cap sensitivity (Compton, then one held-out city)
 
-Status: DRAFT until you date and commit it. Amendment 1 (2026-10-27) is below. Once committed, changes go in a dated
+Status: DRAFT until you date and commit it. Amendments 1 (2026-10-27) and 2 (2026-10-28) are below. Once committed, changes go in a dated
 "Amendments" section at the bottom, never as silent edits.
 
 **What this plan is for.** To fix, before the confirmatory run, what is measured,
@@ -154,3 +154,19 @@ Run: `python analysis/pull_city.py "<CITY>" --out analysis/data/<city>_2025_2026
 - Still PLACEHOLDER: tax rate, insurance, savings, closing costs, price multiplier. Tax: the 1%
   general levy is verified; Compton's total rate is not. Look up 2 to 3 Compton tax rate areas
   at the LA County Auditor-Controller before the confirmatory run.
+
+**Amendment 2, 2026-10-28 (before any held-out city was pulled; after seeing HMDA for Compton).**
+- Reason, stated plainly: public HMDA loans for Compton tracts showed that real buyers carry much
+  higher housing ratios than the 30% base used for the headline (median implied front-end ratio
+  0.39 in 2025 and 0.41 in 2024; most buyers at or below the cap had total DTI of 44% or more).
+  At 43% the Compton 25th-percentile home needs about $136k, 1.02x the cap, and the label is
+  *mixed*, not *unreachable*. The earlier headline was driven by the ratio assumption.
+- Change: the headline and the confirmatory comparison are now reported at two front-end ratios,
+  30% (conservative policy ratio) and 43% (near observed buyers). A confirmatory match requires
+  the same label at both.
+- Added `analysis/hmda_validation.py` and `HMDA-VALIDATION.md` as an external check. It is
+  exploratory for Compton. The same script is run unchanged on the held-out city.
+- This amendment was made after looking at HMDA for Compton, so it is post hoc for Compton. It
+  was made before the held-out city was pulled, so it does not bias the confirmatory test.
+- Interpretation rule: a household that "can" buy at 43% front-end carries a heavy housing cost
+  burden. Reachability at 43% is not affordability. Report both, never one.

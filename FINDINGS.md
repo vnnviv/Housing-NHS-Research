@@ -4,6 +4,18 @@ Dated log of results and corrections, newest first. BSR and coverage results are
 
 ---
 
+## 2026-10-28: HMDA check changes the headline (Compton, exploratory)
+
+- Pulled public HMDA purchase originations for LA County (2024: 43,089; 2025: 42,498) and kept owner-occupied, first-lien, single-family loans in 24 Compton tracts (2024: 289; 2025: 363). Tracts are Census 2020 tracts whose internal point lies inside the city; 21 boundary-touching tracts are excluded.
+- Real buyers: median income $150,000 (2024) and $153,500 (2025); median property value $655,000 in both years; median rate 6.50% and 6.28%. 32% (2024) and 28% (2025) of buyers had income at or below the $133,250 cap, and those buyers bought at a median value of $605,000, mostly with LTV near 95 and about half FHA or VA.
+- **The 30% front-end ratio drove the old headline.** The median buyer's implied front-end ratio was 0.41 (2024) and 0.39 (2025), and most buyers at or below the cap had a total DTI of 44% or more. At 43% the 25th-percentile home needs $135,854, 1.02x the cap, and the label is mixed. At 30% it is $194,725, 1.46x, unreachable in every cell. The earlier sentence "unreachable in every cell" was a statement about a 30% ratio, not about Compton.
+- The Assessor price proxy ran below HMDA property values: p25 $559,482 vs $605,000, median $633,926 vs $655,000 (about 3% to 8% low). That sits inside the 0.95 to 1.10 multiplier range and supports its upper half.
+- The engine's arithmetic reproduces real loans: required income over actual income at each buyer's own terms has median 1.36 (2024) and 1.32 (2025), against 1.36 and 1.31 predicted from their ratios. This checks consistency of the formulas, not the tax and insurance assumptions.
+- Limits: HMDA shows only people who bought (survivorship). Income is combined applicant income and household size is unknown, so the 4-person caps are a rough match. Half the buyers at or below the cap had a co-applicant. 2025 rates were lower than the 7.40% base. HMDA has no down payment assistance or seller-credit field.
+- Consequence: the headline and the confirmatory test now use two ratios (Amendment 2). The claim that survives is narrower and more defensible: whether a cap-level household can buy depends mainly on how much of their income lenders let them spend on housing, and reaching a home at 43% means a heavy cost burden.
+
+---
+
 ## 2026-10-27: Sourced rate range, headline line, held-out pipeline
 
 - Rate range replaced with Freddie Mac PMMS history: 5.98% to 7.79% (weekly, 2023-01-05 to 2026-10-22; FRED MORTGAGE30US). Base 7.40% unchanged; latest reading 7.32%. Amendment 1 in `ANALYSIS-PLAN.md`.
