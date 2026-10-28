@@ -45,22 +45,25 @@ def main():
     # Figure 1: required income vs principal reduction, with the caps
     fig, ax = plt.subplots(figsize=(7.2, 4.4), facecolor=SURFACE)
     style(ax)
-    for price, color, name, dy in ((bench["p25"], BLUE, "25th-percentile home", 8_000),
+    for price, color, name, dy in ((bench["p25"], BLUE, "25th pct at 30% ratio", 8_000),
                                    (bench["p50"], ORANGE, "Median home", 4_000)):
         ys = [cs.required_income(price, p, r) for r in Rs]
         ax.plot(Rs, ys, color=color, linewidth=2)
-        ax.text(Rs[-1] + 2500, ys[-1] + dy, f"{name}\n${price / 1000:,.0f}k", color=INK,
+        ax.text(Rs[-1] + 2500, ys[-1] + dy, f"{name}\n${price / 1000:,.0f}k" if name == "Median home" else f"{name}\n${price / 1000:,.0f}k home", color=INK,
                 fontsize=9, va="center")
+    ys43 = [cs.required_income(bench["p25"], replace(p, housing_dti=0.43), r) for r in Rs]
+    ax.plot(Rs, ys43, color=BLUE, linewidth=2, linestyle=(0, (5, 3)))
+    ax.text(Rs[-1] + 2500, ys43[-1] + 4_000, "25th pct at 43% ratio", color=INK, fontsize=9, va="center")
     for name, cap in (("HUD low = HCD moderate  $133k", 133_250), ("HUD very low  $83k", 83_300)):
         ax.axhline(cap, color=MUTED, linewidth=1, linestyle=(0, (4, 3)))
-        ax.text(0, cap + 3000, name, color=MUTED, fontsize=8.5)
+        ax.text(105_000 if cap > 100_000 else 0, cap - 9_000 if cap > 100_000 else cap + 3000, name, color=MUTED, fontsize=8.5)
     ax.set_xlim(0, 195_000)
     ax.set_ylim(60_000, 240_000)
     ax.xaxis.set_major_formatter(money_k)
     ax.yaxis.set_major_formatter(money_k)
     ax.set_xlabel("Principal reduction from soft assistance", color=MUTED, fontsize=9)
     ax.set_ylabel("Income needed for the first mortgage", color=MUTED, fontsize=9)
-    ax.set_title("Income a Compton home requires vs the income caps (7.40%, 30% ratio)",
+    ax.set_title("Income a Compton home requires vs the caps, at two housing ratios (7.40%)",
                  loc="left", color=INK, fontsize=10.5)
     fig.text(0.01, 0.045, "Exploratory. Price = Assessor base-year value on 2025-26 resets, not recorded sales.",
              color=MUTED, fontsize=7.5)
