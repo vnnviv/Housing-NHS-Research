@@ -269,14 +269,24 @@ MIN_N = 100          # ANALYSIS-PLAN.md section 3: no percentiles below this
 HEADLINE_CAP = ("HUD low = HCD moderate", 133_250)
 
 
+HEADLINE_DTIS = (0.30, 0.43)   # 0.30 = conservative policy ratio; 0.43 = near what HMDA buyers carry
+
+
 def headline(price25, p):
-    """The preregistered comparison: 25th percentile, R = 0, base ratio, HUD low cap."""
+    """Preregistered comparison: 25th percentile, R = 0, HUD low cap, at each ratio in HEADLINE_DTIS.
+
+    The label depends heavily on the front-end ratio, so it is always reported at two values.
+    """
     name, cap = HEADLINE_CAP
     short = [c for c in CAPS if c[0] == name]
-    y = required_income(price25, p, 0.0)
-    g = grid_summary(price25, p, 0.0, p.housing_dti, short)
-    return {"required": y, "ratio": y / cap, "label": g["labels"][name],
-            "cap_name": name, "cap": cap}
+    rows = []
+    for dti in HEADLINE_DTIS:
+        y = required_income(price25, replace(p, housing_dti=dti), 0.0)
+        g = grid_summary(price25, p, 0.0, dti, short)
+        rows.append({"dti": dti, "required": y, "ratio": y / cap, "label": g["labels"][name]})
+    base = rows[0]
+    return {"required": base["required"], "ratio": base["ratio"], "label": base["label"],
+            "cap_name": name, "cap": cap, "rows": rows}
 
 
 # ---------------------------------------------------------------------------
@@ -333,11 +343,17 @@ def build_report(bench, prices, rate, rate_date, label="Compton", status="explor
     hl = headline(bench["p25"], p)
     add("## 0. Headline for the preregistered comparison")
     add("")
-    add(f"25th-percentile home ({money(bench['p25'])}), no principal reduction, "
-        f"{p.housing_dti * 100:.0f}% front-end ratio, base assumptions: required income "
-        f"**{money(hl['required'])}**, {hl['ratio']:.2f}x the {hl['cap_name']} cap "
-        f"({money(hl['cap'])}). Across the grid: **{hl['label']}**. The confirmatory city "
-        "is compared on exactly this line.")
+    add(f"25th-percentile home ({money(bench['p25'])}), no principal reduction, base assumptions, "
+        f"{hl['cap_name']} cap ({money(hl['cap'])}). The answer depends on the front-end ratio, so "
+        "it is shown at two values:")
+    add("")
+    add("| Front-end ratio | Required income | Multiple of cap | Across the grid |")
+    add("|---|---|---|---|")
+    for r in hl["rows"]:
+        add(f"| {r['dti'] * 100:.0f}% | {money(r['required'])} | {r['ratio']:.2f}x | {r['label']} |")
+    add("")
+    add("30% is a conservative policy ratio. 43% is near what actual Compton buyers carry "
+        "(see `HMDA-VALIDATION.md`). The confirmatory city is compared on both lines.")
     add("")
 
     add("## 1. Income a home requires vs the caps")
