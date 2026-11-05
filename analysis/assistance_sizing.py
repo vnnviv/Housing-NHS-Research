@@ -151,7 +151,7 @@ def load_external_prices(path, column):
 
 
 def parcel_prices(rows):
-    return sorted(r[0] for r in rows if r[0] >= dps.MIN_PLAUSIBLE_SALE)
+    return dps.clean_prices(rows)[0]
 
 
 def with_settings(fn, rate=None, dti=None, mi_scale=None):

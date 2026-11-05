@@ -4,12 +4,36 @@ Dated log of results and corrections, newest first. BSR and coverage results are
 
 ---
 
+## 2026-11-05: Q5, Prop 13 roll versus market by tract (SGV vs South LA, exploratory)
+
+- New `analysis/prop13_gap.py`, output `Q5-PROP13-GAP.md` and `analysis/data/q5_tracts.csv`. Uses LA County's 2026 roll on ArcGIS Online (reachable from anywhere, unlike the GIS service in `pull_city.py`), TIGERweb 2020 tracts, HMDA 2024-25, and the county's ACS B03002 layer joined spatially. 221,709 SFR parcels; 93 SGV and 222 South LA study tracts.
+- **Go.** South LA's roll sits further below market than SGV's on all three measures. SGV minus South LA: +0.13 against HMDA values (0.54 vs 0.41), +0.05 against same-tract resets per sqft (0.44 vs 0.39). The 2.5x spread between those two is the benchmark problem in miniature.
+- **Not tenure.** SGV owners have held longer (median base year 2003 vs 2006), which by itself would push SGV further from market. Within every base-year cohort except 2020-23, South LA sits further below market; widest in 2008-12 (0.61 vs 0.40). The gap is mainly appreciation since purchase. This revises the "map of tenure" hypothesis in `PAPER2-CONTEXT-DELTA`.
+- **For Paper 2.** Assessed value as a benchmark would manufacture a 5 to 13 point "undervaluation" of South LA with no valuation content, and matching on base year would not remove it.
+- **Open.** Renovated resales could inflate South LA's market reference; `EffectiveYearBuilt` could test it. ACS year of the county layer is unverified. Regions were set in code before outcomes, but not preregistered.
+
+---
+
+## 2026-11-05: Round-value filter on the Assessor price proxy (Compton, exploratory)
+
+- **Why.** The proxy ran below HMDA property values, more at the low end (p25 about 8% low, median about 3%). Most of that gap came from contaminated rows, not from the benchmark itself.
+- **Filter.** A full change of ownership enrolls the purchase price, which is almost always a whole $100. On a later roll it is that price times 1.02. Values that fit neither pattern are mostly partial-interest transfers or blended base years. New `market_price()` and `clean_prices()` in `downpayment_scenarios.py`; every script now uses them, and indexed values are converted back to the sale price. Tests in `tests/test_market_filter.py`.
+- **Counts (Compton, 760 reset parcels).** 14 below $200,000, 125 more with non-market values, 621 kept. The 125 dropped values sat about 16% (median) to 28% (p25) below HMDA.
+- **New benchmark.** p10 $515,000 (was $470,766), p25 $580,700 (was $559,482), median $640,000 (was $633,926). Against HMDA 2024-25 (p25 $605,000, median $655,000), the proxy is now about 4% low at p25 and 2% low at the median.
+- **The residual 2% to 4% is not explained, and public data cannot explain it.** Candidates: HMDA's value is often the appraisal, which tends to sit at or above contract price; HMDA covers only financed owner-occupants, while resets include cash and investor purchases. Timing goes the wrong way: Assessor sales are later and prices rose, so timing would push the proxy up. Separating the candidates needs parcel-to-loan matches, and public HMDA has no address.
+- **Headline moves against cap-level households.** At a 43% ratio the 25th-percentile home needs $140,848, 1.06x the $133,250 cap (was 1.02x), and the grid is reachable in 143 of 540 cells (was 215). At 30% it needs $201,882, 1.52x (was 1.46x), still unreachable everywhere.
+- **Unchanged.** At the median home, 91% to 94% of assistance needed is still an income gap, and the best usable program still covers 8% to 13%.
+- **Correction carried in code.** The downpayment report text said California is a non-disclosure state. It is not; sale prices are recorded. The sentence now says only that sale prices are not in the parcel layer used here.
+- **Limits.** The filter is a heuristic: some genuine sales have odd prices, and some partial transfers land on round numbers. Report it as a filter with a sensitivity check (with and without), not as a classification.
+
+---
+
 ## 2026-10-28: HMDA check changes the headline (Compton, exploratory)
 
 - Pulled public HMDA purchase originations for LA County (2024: 43,089; 2025: 42,498) and kept owner-occupied, first-lien, single-family loans in 24 Compton tracts (2024: 289; 2025: 363). Tracts are Census 2020 tracts whose internal point lies inside the city; 21 boundary-touching tracts are excluded.
 - Real buyers: median income $150,000 (2024) and $153,500 (2025); median property value $655,000 in both years; median rate 6.50% and 6.28%. 32% (2024) and 28% (2025) of buyers had income at or below the $133,250 cap, and those buyers bought at a median value of $605,000, mostly with LTV near 95 and about 40% FHA or VA.
 - **The 30% front-end ratio drove the old headline.** The median buyer's implied front-end ratio was 0.41 (2024) and 0.39 (2025), and most buyers at or below the cap had a total DTI of 44% or more. At 43% the 25th-percentile home needs $135,854, 1.02x the cap, and the label is mixed. At 30% it is $194,725, 1.46x, unreachable in every cell. The earlier sentence "unreachable in every cell" was a statement about a 30% ratio, not about Compton.
-- The Assessor price proxy ran below HMDA property values: p25 $559,482 vs $605,000, median $633,926 vs $655,000 (about 3% to 8% low). That sits inside the 0.95 to 1.10 multiplier range and supports its upper half.
+- The Assessor price proxy ran below HMDA property values: p25 $559,482 vs $605,000, median $633,926 vs $655,000 (about 3% to 8% low). That sits inside the 0.95 to 1.10 multiplier range and supports its upper half. *Corrected 2026-11-05: most of this gap was non-market rows; after the round-value filter the proxy is about 2% to 4% low.*
 - The engine's arithmetic reproduces real loans: required income over actual income at each buyer's own terms has median 1.36 (2024) and 1.32 (2025), against 1.36 and 1.31 predicted from their ratios. This checks consistency of the formulas, not the tax and insurance assumptions.
 - Limits: HMDA shows only people who bought (survivorship). Income is combined applicant income and household size is unknown, so the 4-person caps are a rough match. Half the buyers at or below the cap had a co-applicant. 2025 rates were lower than the 7.40% base. HMDA has no down payment assistance or seller-credit field.
 - Consequence: the headline and the confirmatory test now use two ratios (Amendment 2). The claim that survives is narrower and more defensible: whether a cap-level household can buy depends mainly on how much of their income lenders let them spend on housing, and reaching a home at 43% means a heavy cost burden.

@@ -117,6 +117,40 @@ ASSESSOR_URL = (
 )
 DATA_FILE = Path(__file__).resolve().parent / "data" / "compton_sales_2025_2026.csv"
 MIN_PLAUSIBLE_SALE = 200_000   # below this = partial-interest / non-arms-length
+ROLL_YEAR = 2026               # roll the parcel CSVs were pulled from
+INDEX_FACTOR = 1.02            # Prop 13 annual inflation factor (max 2%)
+ROUND_TO = 100                 # sale prices are recorded in whole $100s or finer-round
+MAX_INDEX_YEARS = 1            # base years 2025-2026 on the 2026 roll: at most one indexing step
+
+
+def market_price(total, base_year, roll_year=ROLL_YEAR):
+    """Return the implied sale price if a reset value looks like a full-market sale, else None.
+
+    A full change of ownership enrolls the purchase price, which is almost always a whole
+    multiple of $100; on a later roll it is that price times 1.02 per year. Values that fit
+    neither pattern are most often partial-interest transfers or blended base years, which
+    sit well below market (FINDINGS 2026-11-05). This is a heuristic filter: some real sales
+    have odd prices and some partial transfers land on round numbers.
+    """
+    try:
+        steps = int(roll_year) - int(base_year)
+    except (TypeError, ValueError):
+        steps = 0
+    for k in range(0, min(max(steps, 0), MAX_INDEX_YEARS) + 1):
+        price = total / INDEX_FACTOR ** k
+        if abs(price - round(price / ROUND_TO) * ROUND_TO) < 1.0:
+            return round(price / ROUND_TO) * ROUND_TO
+    return None
+
+
+def clean_prices(rows):
+    """Apply the floor and the round-value filter. Returns (prices, counts)."""
+    above = [r for r in rows if r[0] >= MIN_PLAUSIBLE_SALE]
+    prices = [p for p in (market_price(r[0], r[4]) for r in above) if p is not None]
+    kept = [r for r in above if market_price(r[0], r[4]) is not None]
+    counts = {"pulled": len(rows), "below_floor": len(rows) - len(above),
+              "not_market": len(above) - len(kept), "kept": len(kept)}
+    return sorted(prices), kept, counts
 
 
 # ---------------------------------------------------------------------------
@@ -176,9 +210,8 @@ def load_rows(path=DATA_FILE):
 
 def price_benchmark(rows):
     """Percentiles of observed transaction prices, with non-arms-length dropped."""
-    kept = [r for r in rows if r[0] >= MIN_PLAUSIBLE_SALE]
+    values, kept, counts = clean_prices(rows)
     dropped = len(rows) - len(kept)
-    values = sorted(r[0] for r in kept)
     pct = statistics.quantiles(values, n=100)
     sqft = [int(r[1]) for r in kept if r[1] not in (None, "", "None")]
     beds = [int(r[2]) for r in kept if r[2] not in (None, "", "None")]
@@ -186,6 +219,8 @@ def price_benchmark(rows):
     return {
         "n": len(values),
         "dropped": dropped,
+        "below_floor": counts["below_floor"],
+        "not_market": counts["not_market"],
         "p10": pct[9], "p25": pct[24], "p50": pct[49],
         "p75": pct[74], "p90": pct[89],
         "mean": statistics.mean(values),
@@ -497,8 +532,8 @@ def build_report(bench):
         "whose subject is valuation measurement. This run replaces it with observed "
         "transaction prices recovered from the LA County Assessor roll.")
     add("")
-    add("California is a non-disclosure state, so sale prices do not appear on "
-        "recorded deeds. Under Proposition 13, however, a property's assessed value "
+    add("Sale prices are not in the public parcel layer this analysis uses. Under "
+        "Proposition 13, however, a property's assessed value "
         "is reset to its purchase price at a change of ownership and then escalates "
         "by no more than 2% a year. A parcel whose base year is 2025 or 2026 "
         "therefore carries an assessed value that *is* essentially its recent sale "
@@ -506,8 +541,10 @@ def build_report(bench):
         "ownership changes, since a remodel or addition resets only the improvement "
         "base year. Parcels assessed below "
         f"{money(MIN_PLAUSIBLE_SALE)} were dropped as partial-interest or "
-        f"non-arms-length transfers ({bench['dropped']} of "
-        f"{bench['n'] + bench['dropped']}).")
+        f"non-arms-length transfers ({bench['below_floor']} of "
+        f"{bench['n'] + bench['dropped']}), and {bench['not_market']} more whose value "
+        f"is neither a whole-$100 price nor one indexed by 2%, the signature of partial "
+        f"or blended reassessments. Indexed values are converted back to the sale price.")
     add("")
     add(f"Worth noting for the Paper 2 benchmark question: the Assessor-derived "
         f"median of {money(benchmark_price)} lands within about 1.6% of the Zillow "

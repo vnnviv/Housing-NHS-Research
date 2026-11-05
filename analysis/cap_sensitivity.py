@@ -517,7 +517,7 @@ def main():
     if bench["n"] < MIN_N:
         raise SystemExit(f"Only {bench['n']} retained parcels for {args.label}; the plan "
                          f"requires at least {MIN_N}. Report the range only, do not run.")
-    prices = sorted(r[0] for r in rows if r[0] >= dps.MIN_PLAUSIBLE_SALE)
+    prices = dps.clean_prices(rows)[0]
     report = build_report(bench, prices, args.rate, args.rate_date, args.label, args.status)
     out_path = Path(__file__).resolve().parent.parent / args.out
     out_path.write_text(report, encoding="utf-8")

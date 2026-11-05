@@ -18,6 +18,9 @@ import urllib.parse
 import urllib.request
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import downpayment_scenarios as dps   # noqa: E402  shared market-sale filter
+
 URL = ("https://public.gis.lacounty.gov/public/rest/services/"
        "LACounty_Cache/LACounty_Parcel/MapServer/0/query")
 FIELDS = ("Roll_LandValue,Roll_ImpValue,Roll_LandBaseYear,Roll_ImpBaseYear,"
@@ -65,9 +68,12 @@ def main():
         total = (a.get("Roll_LandValue") or 0) + (a.get("Roll_ImpValue") or 0)
         rows.append([total, a.get("SQFTmain1"), a.get("Bedrooms1"),
                      a.get("YearBuilt1"), a.get("Roll_LandBaseYear")])
-    kept = [r for r in rows if r[0] >= MIN_ASSESSED]
+    _, kept, counts = dps.clean_prices(rows)
     print(f"{args.city}: pulled {len(raw)}; land base year = improvement base year "
-          f"{len(reset)}; assessed >= ${MIN_ASSESSED:,} {len(kept)}")
+          f"{len(reset)}; assessed >= ${MIN_ASSESSED:,} {len(rows) - counts['below_floor']}; "
+          f"whole-$100 or 2%-indexed value (market sale) {len(kept)}")
+    # All reset rows are written; the analysis scripts apply the same filter on load,
+    # so the counts above are reproducible from the file.
     if len(kept) < MIN_N:
         sys.exit(f"Only {len(kept)} retained parcels (< {MIN_N}). Per the plan, report the "
                  "range only and move to the next city on the list. No file written.")

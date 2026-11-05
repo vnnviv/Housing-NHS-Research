@@ -12,3 +12,6 @@ env/
 *.csv
 *.parquet
 !analysis/data/compton_sales_2025_2026.csv
+!analysis/data/q5_tracts.csv
+q5_cache/
+hmda_cache/
