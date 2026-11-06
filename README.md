@@ -25,10 +25,14 @@ pytest
 
 A separate affordability analysis for Compton, CA. It is scenario modeling, not a disparity estimate, and makes no claim about algorithmic bias.
 
-- **Data:** `analysis/data/compton_sales_2025_2026.csv`, 760 rows from the LA County Assessor roll, pulled 2026-09-18. These are base-year assessed values for 2025-26 transfers, **not recorded sale prices**. They serve as a price proxy after dropping 14 transfers under $200,000.
+- **Data:** `analysis/data/compton_sales_2025_2026.csv`, 760 rows from the LA County Assessor roll, pulled 2026-09-18. These are base-year assessed values for 2025-26 transfers, **not recorded sale prices**. They serve as a price proxy after dropping 14 transfers under $200,000 and 125 whose values are neither a whole-$100 price nor a 2%-indexed one (partial or blended reassessments; see `FINDINGS.md`, 2026-11-05).
 - **Code:** `analysis/downpayment_scenarios.py` (scenario model, with `NHS-Downpayment-Scenarios.xlsx`) and `analysis/assistance_sizing.py` (how much assistance a household needs, split into a cash part and an income part). Tests are in `tests/`.
 - **Results:** [`NHS-ASSISTANCE-SIZING.md`](NHS-ASSISTANCE-SIZING.md).
 - **Cap sensitivity (exploratory):** `analysis/cap_sensitivity.py` inverts the sizing model to ask what income a recent Compton sale requires, compares it with named program caps, and reports flip points and a tornado. Governing plan: [`ANALYSIS-PLAN.md`](ANALYSIS-PLAN.md). Output: [`NHS-CAP-SENSITIVITY.md`](NHS-CAP-SENSITIVITY.md). Tests: `tests/test_cap_sensitivity.py`. Held-out city: `analysis/pull_city.py` (run locally), `analysis/acs_renter_income.py` (needs a Census key), figures via `analysis/make_figures.py`. Literature check: [`docs/novelty-search.md`](docs/novelty-search.md). Real-buyer check with public HMDA loans: `analysis/hmda_validation.py` and [`HMDA-VALIDATION.md`](HMDA-VALIDATION.md).
+
+## Prop 13 roll versus market by tract (repository root, exploratory)
+
+`analysis/prop13_gap.py` measures how far 2026 roll values sit below market in San Gabriel Valley and South LA tracts, against HMDA property values and against same-tract resets per sqft, and by base-year cohort. Output: [`Q5-PROP13-GAP.md`](Q5-PROP13-GAP.md) and `analysis/data/q5_tracts.csv`. Tests: `tests/test_prop13_gap.py`. Descriptive only; it shows why assessed value cannot serve as a valuation benchmark here.
 
 ## Notes
 
@@ -38,7 +42,7 @@ A separate affordability analysis for Compton, CA. It is scenario modeling, not 
 
 ## Status
 
-Early-stage. The synthetic demonstration is reproducible under seed `20260905`. The BSR and coverage modules have not been run on real parcel data, and the scenario analysis does not feed them. No empirical claim about algorithmic bias in any real housing market is made or implied.
+Early-stage. The synthetic demonstration is reproducible under seed `20260905`. The BSR and coverage modules have not been run on real parcel data, and the scenario analysis does not feed them. The Q5 roll analysis uses real parcel data but is descriptive. No empirical claim about algorithmic bias in any real housing market is made or implied.
 
 ## License
 

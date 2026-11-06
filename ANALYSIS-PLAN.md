@@ -164,6 +164,15 @@ Run: `python analysis/pull_city.py "<CITY>" --out analysis/data/<city>_2025_2026
 - Change: the headline and the confirmatory comparison are now reported at two front-end ratios,
   30% (conservative policy ratio) and 43% (near observed buyers). A confirmatory match requires
   the same label at both.
+
+**Amendment 3, 2026-11-05 (no held-out city data in the repository yet; after seeing HMDA for Compton).**
+- Reason: the Assessor proxy ran 3% to 8% below HMDA property values, mostly from values that are
+  neither a whole-$100 price nor a 2%-indexed one (partial-interest or blended reassessments).
+- Change: the price proxy now applies `market_price()` in `downpayment_scenarios.py` on top of the
+  $200,000 floor, and indexed values are converted back to the sale price. The same filter applies
+  to every held-out city. Results are reported with and without the filter as a sensitivity check.
+- Effect on Compton: at 43% the 25th-percentile home needs about $141k, 1.06x the cap; the label
+  stays *mixed*. At 30% it stays *unreachable*.
 - Added `analysis/hmda_validation.py` and `HMDA-VALIDATION.md` as an external check. It is
   exploratory for Compton. The same script is run unchanged on the held-out city.
 - This amendment was made after looking at HMDA for Compton, so it is post hoc for Compton. It
